@@ -8,8 +8,8 @@ export async function PATCH(req: Request) {
   const name = String((await req.json()).name ?? "").trim();
   if (!name) return NextResponse.json({ error: "Name can't be empty" }, { status: 400 });
   if (name.length > 50) return NextResponse.json({ error: "Name is too long (max 50)" }, { status: 400 });
-  const data = load();
+  const data = await load();
   data.users.find((u) => u.id === me.id)!.name = name;
-  save(data);
+  await save(data);
   return NextResponse.json({ name, email: me.email });
 }

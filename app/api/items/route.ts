@@ -7,8 +7,8 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   const user = await currentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const data = load();
-  if (rollover(data, user.id)) save(data);
+  const data = await load();
+  if (rollover(data, user.id)) await save(data);
   return NextResponse.json({
     current: monthKey(),
     items: data.items.filter((i) => i.userId === user.id),
@@ -35,8 +35,8 @@ export async function POST(req: Request) {
     carriedFrom: null,
     createdAt: new Date().toISOString(),
   };
-  const data = load();
+  const data = await load();
   data.items.push(item);
-  save(data);
+  await save(data);
   return NextResponse.json(item);
 }

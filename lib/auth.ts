@@ -15,8 +15,10 @@ function secret(): Uint8Array {
     return new TextEncoder().encode(fs.readFileSync(file, "utf8"));
   } catch {
     const s = crypto.randomBytes(32).toString("hex");
-    fs.mkdirSync(path.dirname(file), { recursive: true });
-    fs.writeFileSync(file, s);
+    try {
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      fs.writeFileSync(file, s);
+    } catch {} // read-only host: set AUTH_SECRET there
     return new TextEncoder().encode(s);
   }
 }
@@ -44,7 +46,7 @@ export async function currentUser(): Promise<User | null> {
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, secret());
-    return load().users.find((u) => u.id === payload.sub) ?? null;
+    return (await load()).users.find((u) => u.id === payload.sub) ?? null;
   } catch {
     return null;
   }

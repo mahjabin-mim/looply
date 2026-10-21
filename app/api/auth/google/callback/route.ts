@@ -41,14 +41,14 @@ export async function GET(req: Request) {
     const email = String(info.email ?? "").toLowerCase();
     if (!email || !info.email_verified) return fail("Your Google email is not verified");
 
-    const data = load();
+    const data = await load();
     let user = data.users.find((u) => u.googleId === info.sub) ?? data.users.find((u) => u.email === email);
     if (user) {
-      if (!user.googleId) { user.googleId = info.sub; save(data); } // link to existing email account
+      if (!user.googleId) { user.googleId = info.sub; await save(data); } // link to existing email account
     } else {
       user = { id: uid(), email, name: info.name || email.split("@")[0], passwordHash: "", googleId: info.sub };
       data.users.push(user);
-      save(data);
+      await save(data);
     }
     await createSession(user.id);
     const res = NextResponse.redirect(`${origin}/`);

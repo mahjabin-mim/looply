@@ -6,7 +6,7 @@ import { createSession } from "@/lib/auth";
 export async function POST(req: Request) {
   const { email, password } = await req.json();
   const mail = String(email ?? "").trim().toLowerCase();
-  const user = load().users.find((u) => u.email === mail);
+  const user = (await load()).users.find((u) => u.email === mail);
   if (user && !user.passwordHash)
     return NextResponse.json({ error: "This account uses Google sign-in. Continue with Google, or use \"Forgot password\" to add a password." }, { status: 401 });
   if (!user || !(await bcrypt.compare(String(password ?? ""), user.passwordHash)))

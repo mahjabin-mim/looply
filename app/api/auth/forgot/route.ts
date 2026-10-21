@@ -25,13 +25,13 @@ async function sendMail(to: string, link: string) {
 export async function POST(req: Request) {
   const { email } = await req.json();
   const mail = String(email ?? "").trim().toLowerCase();
-  const data = load();
+  const data = await load();
   const user = data.users.find((u) => u.email === mail);
   if (user) {
     const token = crypto.randomBytes(32).toString("hex");
     user.resetHash = sha(token);
     user.resetExpires = Date.now() + 60 * 60 * 1000;
-    save(data);
+    await save(data);
     await sendMail(user.email, `${new URL(req.url).origin}/?reset=${token}`);
   }
   // Same answer either way so emails can't be probed.

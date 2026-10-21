@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
+import { Redis } from "@upstash/redis";
 
 export type Status = "pending" | "done" | "skipped";
 
@@ -45,16 +46,31 @@ interface Data {
 const DIR = path.join(process.cwd(), "data");
 const FILE = path.join(DIR, "db.json");
 
-export function load(): Data {
+const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
+const KEY = "monthly-list:data";
+const redis = REDIS_URL && REDIS_TOKEN ? new Redis({ url: REDIS_URL, token: REDIS_TOKEN }) : null;
+
+const empty = (): Data => ({ users: [], items: [], budgets: [] });
+
+/** Stored in Upstash Redis when configured (hosting), otherwise in data/db.json (local). */
+export async function load(): Promise<Data> {
+  if (redis) {
+    const d = await redis.get<Data>(KEY);
+    return { ...empty(), ...(d ?? {}) };
+  }
   try {
-    const d = JSON.parse(fs.readFileSync(FILE, "utf8"));
-    return { users: [], items: [], budgets: [], ...d };
+    return { ...empty(), ...JSON.parse(fs.readFileSync(FILE, "utf8")) };
   } catch {
-    return { users: [], items: [], budgets: [] };
+    return empty();
   }
 }
 
-export function save(data: Data) {
+export async function save(data: Data): Promise<void> {
+  if (redis) {
+    await redis.set(KEY, data);
+    return;
+  }
   fs.mkdirSync(DIR, { recursive: true });
   const tmp = FILE + ".tmp";
   fs.writeFileSync(tmp, JSON.stringify(data, null, 2));
