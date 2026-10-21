@@ -199,3 +199,22 @@ input:disabled { opacity: 0.6; cursor: not-allowed; }
 .save-head { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; font-size: 0.85rem; color: var(--muted); }
 .saved-so-far { margin-top: 12px; font-size: 0.8rem; color: var(--muted); }
 .saved-so-far b { color: var(--text); }
+
+.tabs { display: flex; gap: 4px; padding: 4px; border-radius: 14px; background: var(--soft); margin-bottom: 16px; }
+.tabs button { position: relative; flex: 1; padding: 10px 8px; border-radius: 11px; background: transparent; font-weight: 600; color: var(--muted); }
+.tabs button.on { color: #fff; }
+.tabs .pill { position: absolute; inset: 0; border-radius: 11px; background: linear-gradient(135deg, var(--accent), #5b8cff); box-shadow: 0 4px 14px rgba(110, 90, 255, 0.35); }
+.tabs .lbl { position: relative; }
+.big-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.big { padding: 16px; }
+.big span { display: block; font-size: 0.78rem; color: var(--muted); }
+.big b { display: block; font-size: 1.45rem; margin: 4px 0; }
+.big small { color: var(--muted); font-size: 0.72rem; }
+.muted { color: var(--muted); }
+.sumrow { padding: 14px 16px; margin-bottom: 8px; }
+.sm-month { font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.sm-month em { font-style: normal; font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); }
+.sm-cells { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.sm-cells span { display: block; font-size: 0.72rem; color: var(--muted); }
+.sm-cells b { font-size: 0.98rem; }
+@media (max-width: 620px) { .big-stats { grid-template-columns: 1fr; } .big b { font-size: 1.3rem; } }

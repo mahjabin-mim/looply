@@ -6,6 +6,7 @@ import AuthForm from "@/components/AuthForm";
 import ItemRow from "@/components/ItemRow";
 import ItemModal from "@/components/ItemModal";
 import PostponeModal from "@/components/PostponeModal";
+import Summary from "@/components/Summary";
 import BudgetCard from "@/components/BudgetCard";
 import ProfileModal from "@/components/ProfileModal";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -30,6 +31,7 @@ export default function Home() {
   const [price, setPrice] = useState("");
   const [mine, setMine] = useState(true);
   const [editing, setEditing] = useState<Item | null>(null);
+  const [tab, setTab] = useState<"list" | "summary">("list");
   const [postponing, setPostponing] = useState<Item | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
 
@@ -146,6 +148,19 @@ export default function Home() {
         </div>
       </motion.div>
 
+      <div className="tabs">
+        {(["list", "summary"] as const).map((t) => (
+          <button key={t} className={tab === t ? "on" : ""} onClick={() => setTab(t)}>
+            {tab === t && <motion.span layoutId="tab-pill" className="pill" transition={{ type: "spring", stiffness: 380, damping: 30 }} />}
+            <span className="lbl">{t === "list" ? "My list" : "Savings & spending"}</span>
+          </button>
+        ))}
+      </div>
+
+      {tab === "summary" ? (
+        <Summary items={items} budgets={budgets} current={current} effective={effective} />
+      ) : (
+        <>
       <div className="glass monthbar">
         <button className="ghost" onClick={() => go(-1)}>←</button>
         <div style={{ textAlign: "center", overflow: "hidden" }}>
@@ -211,6 +226,8 @@ export default function Home() {
           <AnimatePresence initial={false}>{skipped.map(row)}</AnimatePresence>
         </motion.div>
       </AnimatePresence>
+        </>
+      )}
 
       <AnimatePresence>
         {postponing && (
