@@ -1,11 +1,12 @@
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import type { Item } from "@/lib/db";
+import type { Item, Budget } from "@/lib/db";
 import AuthForm from "@/components/AuthForm";
 import ItemRow from "@/components/ItemRow";
 import ItemModal from "@/components/ItemModal";
 import PostponeModal from "@/components/PostponeModal";
+import BudgetCard from "@/components/BudgetCard";
 import ProfileModal from "@/components/ProfileModal";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -21,6 +22,7 @@ const label = (m: string) => new Date(m + "-01T00:00").toLocaleString("en", { mo
 export default function Home() {
   const [user, setUser] = useState<User | undefined>(undefined);
   const [items, setItems] = useState<Item[]>([]);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
   const [current, setCurrent] = useState("");
   const [month, setMonth] = useState("");
   const [dir, setDir] = useState(1);
@@ -36,6 +38,7 @@ export default function Home() {
     if (r.status === 401) return setUser(null);
     const d = await r.json();
     setItems(d.items);
+    setBudgets(d.budgets ?? []);
     setCurrent(d.current);
     setMonth((m) => m || d.current);
   }, []);
@@ -71,12 +74,28 @@ export default function Home() {
     await fetch(`/api/items/${id}`, { method: "DELETE" });
   };
 
+  const saveBudget = async (v: { budget?: number; savings?: number }) => {
+    const cur = effective(month);
+    const body = { month, budget: cur.budget, savings: cur.savings, ...v };
+    const r = await fetch("/api/budget", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const row: Budget = await r.json();
+    setBudgets((all) => [...all.filter((x) => x.month !== row.month), row]);
+  };
+
   const logout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     setUser(null); setItems([]); setMonth("");
   };
 
   const go = (n: number) => { setDir(n); setMonth((m) => shift(m, n)); };
+
+  // A month without its own budget reuses the latest earlier month's numbers.
+  const effective = (m: string) => {
+    const own = budgets.find((x) => x.month === m);
+    if (own) return { budget: own.budget, savings: own.savings, inherited: false };
+    const prev = budgets.filter((x) => x.month < m).sort((a, b) => (a.month < b.month ? 1 : -1))[0];
+    return { budget: prev?.budget ?? 0, savings: prev?.savings ?? 0, inherited: !!prev };
+  };
 
   const list = useMemo(() => items.filter((i) => i.month === month), [items, month]);
   const todo = list.filter((i) => i.status === "pending");
@@ -89,6 +108,17 @@ export default function Home() {
   const spent = sum(done.filter(isMine));
   const planned = sum(todo.filter(isMine));
   const others = sum([...done, ...todo].filter((i) => !isMine(i)));
+
+  // Saved in finished months: the saving goal, as far as the leftover cash covered it.
+  let savedSoFar = 0;
+  if (budgets.length && current) {
+    const first = budgets.reduce((a, b) => (a < b.month ? a : b.month), budgets[0].month);
+    for (let m = first; m < current; m = shift(m, 1)) {
+      const e = effective(m);
+      const sp = items.filter((i) => i.month === m && i.status === "done" && i.mine !== false).reduce((s, i) => s + (i.price ?? 0), 0);
+      savedSoFar += Math.min(e.savings, Math.max(0, e.budget - sp));
+    }
+  }
 
   if (user === undefined) return null;
   if (!user) return <main><ThemeToggle className="theme-float" /><AuthForm onDone={boot} /></main>;
@@ -146,6 +176,16 @@ export default function Home() {
         <div className="glass stat"><b>৳{planned.toFixed(2)}</b><span>still planned</span></div>
         <div className="glass stat"><b>৳{others.toFixed(2)}</b><span>not mine (separate)</span></div>
       </div>
+      <BudgetCard
+        budget={effective(month).budget}
+        savings={effective(month).savings}
+        inherited={effective(month).inherited}
+        spent={spent}
+        planned={planned}
+        savedSoFar={savedSoFar}
+        onSave={saveBudget}
+      />
+
       <div className="progress">
         <motion.div initial={false} animate={{ width: `${pct}%` }} transition={{ type: "spring", stiffness: 90, damping: 18 }} />
       </div>

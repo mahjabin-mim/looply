@@ -29,9 +29,17 @@ export interface Item {
   createdAt: string;
 }
 
+export interface Budget {
+  userId: string;
+  month: string; // YYYY-MM
+  budget: number;
+  savings: number; // amount to put aside for the future
+}
+
 interface Data {
   users: User[];
   items: Item[];
+  budgets: Budget[];
 }
 
 const DIR = path.join(process.cwd(), "data");
@@ -39,9 +47,10 @@ const FILE = path.join(DIR, "db.json");
 
 export function load(): Data {
   try {
-    return JSON.parse(fs.readFileSync(FILE, "utf8"));
+    const d = JSON.parse(fs.readFileSync(FILE, "utf8"));
+    return { users: [], items: [], budgets: [], ...d };
   } catch {
-    return { users: [], items: [] };
+    return { users: [], items: [], budgets: [] };
   }
 }
 

@@ -186,3 +186,16 @@ input:disabled { opacity: 0.6; cursor: not-allowed; }
 .chk input:checked::after { transform: rotate(45deg) scale(1); }
 .chk input:active { transform: scale(0.88); }
 .chk span { font-weight: 600; }
+
+.money { padding: 16px; margin-bottom: 14px; }
+.money-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.money-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+.money-grid div { padding: 10px 12px; border-radius: 12px; background: var(--soft); }
+.money-grid span { display: block; font-size: 0.75rem; color: var(--muted); }
+.money-grid b { font-size: 1.15rem; color: var(--accent2); }
+.neg { color: var(--danger) !important; }
+.pos { color: var(--accent2); }
+.save { margin-top: 14px; }
+.save-head { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; font-size: 0.85rem; color: var(--muted); }
+.saved-so-far { margin-top: 12px; font-size: 0.8rem; color: var(--muted); }
+.saved-so-far b { color: var(--text); }
