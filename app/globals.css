@@ -144,3 +144,5 @@ label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 
 .gbtn { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px 18px; border-radius: 12px; background: #fff; color: #3c4043; font-weight: 600; text-decoration: none; border: 1px solid var(--border); transition: transform 0.15s, box-shadow 0.2s; }
 .gbtn:hover { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2); transform: translateY(-1px); }
 .gbtn:active { transform: scale(0.97); }
+.sep { border: 0; height: 1px; background: var(--border); margin: 22px 0; }
+input:disabled { opacity: 0.6; cursor: not-allowed; }
