@@ -5,6 +5,7 @@ import type { Item } from "@/lib/db";
 import AuthForm from "@/components/AuthForm";
 import ItemRow from "@/components/ItemRow";
 import ItemModal from "@/components/ItemModal";
+import PostponeModal from "@/components/PostponeModal";
 import ProfileModal from "@/components/ProfileModal";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -26,6 +27,7 @@ export default function Home() {
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [editing, setEditing] = useState<Item | null>(null);
+  const [postponing, setPostponing] = useState<Item | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
 
   const refresh = useCallback(async () => {
@@ -91,7 +93,7 @@ export default function Home() {
       key={i.id}
       item={i}
       onToggle={() => patch(i.id, { status: i.status === "done" ? "pending" : "done" })}
-      onSkip={() => patch(i.id, { status: i.status === "skipped" ? "pending" : "skipped" })}
+      onSkip={() => (i.status === "skipped" ? patch(i.id, { status: "pending" }) : setPostponing(i))}
       onEdit={() => setEditing(i)}
       onDelete={() => remove(i.id)}
     />
@@ -158,6 +160,18 @@ export default function Home() {
           {skipped.length > 0 && <div className="section-title">Not now · {skipped.length}</div>}
           <AnimatePresence initial={false}>{skipped.map(row)}</AnimatePresence>
         </motion.div>
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {postponing && (
+          <PostponeModal
+            key={postponing.id}
+            item={postponing}
+            current={current}
+            onClose={() => setPostponing(null)}
+            onConfirm={(m) => { patch(postponing.id, { status: "skipped", postponeTo: m }); setPostponing(null); }}
+          />
+        )}
       </AnimatePresence>
 
       <AnimatePresence>{profileOpen && <ProfileModal user={user} onClose={() => setProfileOpen(false)} onNameChange={setUser} />}</AnimatePresence>

@@ -160,3 +160,10 @@ input:disabled { opacity: 0.6; cursor: not-allowed; }
   .snooze { padding: 0; width: 36px; height: 36px; justify-content: center; }
   .snooze svg { width: 18px; height: 18px; }
 }
+.hint { color: var(--muted); font-size: 0.88rem; margin: -6px 0 16px; word-break: break-word; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.chip { padding: 8px 14px; border-radius: 99px; background: var(--soft); border: 1px solid var(--border); font-size: 0.85rem; font-weight: 600; }
+.chip:hover { background: var(--soft-hover); }
+.chip.on { background: linear-gradient(135deg, var(--accent), #5b8cff); border-color: transparent; color: #fff; }
+.chip.wide { width: 100%; }
+.tag.later { background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); }

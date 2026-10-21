@@ -24,6 +24,7 @@ export interface Item {
   status: Status;
   carried: boolean; // already copied forward
   carriedFrom: string | null;
+  postponeTo?: string | null; // YYYY-MM; a skipped item is re-added to that month
   createdAt: string;
 }
 
@@ -55,23 +56,33 @@ export const uid = () => crypto.randomUUID();
 export const monthKey = (d = new Date()) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 
-/** Copy unfinished (pending) items from past months into the current month. */
+/**
+ * Copy items forward into the current month:
+ *  - unfinished (pending) items from past months
+ *  - "not now" items whose chosen month has arrived
+ */
 export function rollover(data: Data, userId: string): boolean {
   const current = monthKey();
   let changed = false;
   for (const it of [...data.items]) {
-    if (it.userId === userId && it.status === "pending" && !it.carried && it.month < current) {
-      it.carried = true;
-      data.items.push({
-        ...it,
-        id: uid(),
-        month: current,
-        carried: false,
-        carriedFrom: it.month,
-        createdAt: new Date().toISOString(),
-      });
-      changed = true;
-    }
+    if (it.userId !== userId || it.carried) continue;
+    const due =
+      (it.status === "pending" && it.month < current) ||
+      (it.status === "skipped" && !!it.postponeTo && it.postponeTo <= current);
+    if (!due) continue;
+    it.carried = true;
+    data.items.push({
+      ...it,
+      id: uid(),
+      month: current,
+      status: "pending",
+      postponeTo: null,
+      doneAt: null,
+      carried: false,
+      carriedFrom: it.month,
+      createdAt: new Date().toISOString(),
+    });
+    changed = true;
   }
   return changed;
 }

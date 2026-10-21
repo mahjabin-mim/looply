@@ -16,6 +16,8 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     it.status = b.status;
     if (b.status === "done" && !it.doneAt && !("doneAt" in b)) it.doneAt = new Date().toISOString();
     if (b.status !== "done" && !("doneAt" in b)) it.doneAt = null;
+    // a month only makes sense for a "not now" item
+    it.postponeTo = b.status === "skipped" && /^\d{4}-\d{2}$/.test(b.postponeTo) ? b.postponeTo : null;
   }
   save(data);
   return NextResponse.json(it);

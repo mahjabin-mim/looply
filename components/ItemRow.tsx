@@ -36,6 +36,7 @@ export default function ItemRow({
         <div className="meta">
           {item.price != null && <span className="price">৳{item.price.toFixed(2)}</span>}
           {item.doneAt && <span>✓ {new Date(item.doneAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}</span>}
+          {skipped && item.postponeTo && <span className="tag later">→ {monthName(item.postponeTo)}</span>}
           {item.carriedFrom && <span className="tag">from {monthName(item.carriedFrom)}</span>}
         </div>
       </div>
