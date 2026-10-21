@@ -5,6 +5,7 @@ import type { Item } from "@/lib/db";
 import AuthForm from "@/components/AuthForm";
 import ItemRow from "@/components/ItemRow";
 import ItemModal from "@/components/ItemModal";
+import ThemeToggle from "@/components/ThemeToggle";
 
 type User = { name: string; email: string } | null;
 
@@ -81,7 +82,7 @@ export default function Home() {
   const planned = todo.reduce((s, i) => s + (i.price ?? 0), 0);
 
   if (user === undefined) return null;
-  if (!user) return <main><AuthForm onDone={boot} /></main>;
+  if (!user) return <main><ThemeToggle className="theme-float" /><AuthForm onDone={boot} /></main>;
 
   const row = (i: Item) => (
     <ItemRow
@@ -99,6 +100,7 @@ export default function Home() {
       <motion.div className="topbar" initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="grad">Monthly List</h1>
         <div className="who">
+          <ThemeToggle />
           <span>Hi, {user.name}</span>
           <button className="ghost" onClick={logout}>Log out</button>
         </div>
