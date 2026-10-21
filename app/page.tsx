@@ -132,8 +132,8 @@ export default function Home() {
 
       <div className="stats">
         <div className="glass stat"><b>{done.length}/{active}</b><span>done</span></div>
-        <div className="glass stat"><b>${spent.toFixed(2)}</b><span>spent</span></div>
-        <div className="glass stat"><b>${planned.toFixed(2)}</b><span>still planned</span></div>
+        <div className="glass stat"><b>৳{spent.toFixed(2)}</b><span>spent</span></div>
+        <div className="glass stat"><b>৳{planned.toFixed(2)}</b><span>still planned</span></div>
       </div>
       <div className="progress">
         <motion.div initial={false} animate={{ width: `${pct}%` }} transition={{ type: "spring", stiffness: 90, damping: 18 }} />
