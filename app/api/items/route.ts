@@ -26,6 +26,7 @@ export async function POST(req: Request) {
     userId: user.id,
     title,
     price: b.price === "" || b.price == null ? null : Number(b.price),
+    mine: b.mine !== false,
     doneAt: b.doneAt || null,
     month: /^\d{4}-\d{2}$/.test(b.month) ? b.month : monthKey(),
     status: "pending",

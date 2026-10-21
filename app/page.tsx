@@ -26,6 +26,7 @@ export default function Home() {
   const [dir, setDir] = useState(1);
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
+  const [mine, setMine] = useState(true);
   const [editing, setEditing] = useState<Item | null>(null);
   const [postponing, setPostponing] = useState<Item | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -57,11 +58,12 @@ export default function Home() {
   const add = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    const r = await fetch("/api/items", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title, price, month }) });
+    const r = await fetch("/api/items", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title, price, mine, month }) });
     const it = await r.json();
     setItems((all) => [...all, it]);
     setTitle("");
     setPrice("");
+    setMine(true);
   };
 
   const remove = async (id: string) => {
@@ -82,8 +84,11 @@ export default function Home() {
   const skipped = list.filter((i) => i.status === "skipped");
   const active = todo.length + done.length;
   const pct = active ? Math.round((done.length / active) * 100) : 0;
-  const spent = done.reduce((s, i) => s + (i.price ?? 0), 0);
-  const planned = todo.reduce((s, i) => s + (i.price ?? 0), 0);
+  const isMine = (i: Item) => i.mine !== false;
+  const sum = (xs: Item[]) => xs.reduce((s, i) => s + (i.price ?? 0), 0);
+  const spent = sum(done.filter(isMine));
+  const planned = sum(todo.filter(isMine));
+  const others = sum([...done, ...todo].filter((i) => !isMine(i)));
 
   if (user === undefined) return null;
   if (!user) return <main><ThemeToggle className="theme-float" /><AuthForm onDone={boot} /></main>;
@@ -139,6 +144,7 @@ export default function Home() {
         <div className="glass stat"><b>{done.length}/{active}</b><span>done</span></div>
         <div className="glass stat"><b>৳{spent.toFixed(2)}</b><span>spent</span></div>
         <div className="glass stat"><b>৳{planned.toFixed(2)}</b><span>still planned</span></div>
+        {others > 0 && <div className="glass stat"><b>৳{others.toFixed(2)}</b><span>not my money</span></div>}
       </div>
       <div className="progress">
         <motion.div initial={false} animate={{ width: `${pct}%` }} transition={{ type: "spring", stiffness: 90, damping: 18 }} />
@@ -147,6 +153,9 @@ export default function Home() {
       <form className="glass addrow" onSubmit={add}>
         <input placeholder="What do you want to do or buy?" value={title} onChange={(e) => setTitle(e.target.value)} />
         <input className="more" type="number" step="0.01" min="0" placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} />
+        <button type="button" className={`whose ${mine ? "" : "off"}`} onClick={() => setMine(!mine)} title="Whose money is this?">
+          {mine ? "My money" : "Not mine"}
+        </button>
         <button className="btn">Add</button>
       </form>
 

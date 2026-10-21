@@ -11,6 +11,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   if (!it) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (typeof b.title === "string" && b.title.trim()) it.title = b.title.trim();
   if ("price" in b) it.price = b.price === "" || b.price == null ? null : Number(b.price);
+  if (typeof b.mine === "boolean") it.mine = b.mine;
   if ("doneAt" in b) it.doneAt = b.doneAt || null;
   if (["pending", "done", "skipped"].includes(b.status)) {
     it.status = b.status;

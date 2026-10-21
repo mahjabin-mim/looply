@@ -34,7 +34,8 @@ export default function ItemRow({
       <div className="body">
         <span className="title">{item.title}</span>
         <div className="meta">
-          {item.price != null && <span className="price">৳{item.price.toFixed(2)}</span>}
+          {item.price != null && <span className={`price ${item.mine === false ? "theirs" : ""}`}>৳{item.price.toFixed(2)}</span>}
+          {item.price != null && item.mine === false && <span className="tag notmine">Not mine</span>}
           {item.doneAt && <span>✓ {new Date(item.doneAt).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}</span>}
           {skipped && item.postponeTo && <span className="tag later">→ {monthName(item.postponeTo)}</span>}
           {item.carriedFrom && <span className="tag">from {monthName(item.carriedFrom)}</span>}

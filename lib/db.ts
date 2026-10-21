@@ -19,6 +19,7 @@ export interface Item {
   userId: string;
   title: string;
   price: number | null;
+  mine?: boolean; // false = the money isn't mine (undefined counts as mine)
   doneAt: string | null; // ISO date-time
   month: string; // YYYY-MM
   status: Status;
