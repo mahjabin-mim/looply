@@ -178,3 +178,11 @@ input:disabled { opacity: 0.6; cursor: not-allowed; }
 .price.theirs { color: var(--muted); }
 .tag.notmine { background: color-mix(in srgb, var(--danger) 16%, transparent); color: var(--danger); }
 @media (max-width: 520px) { .whose { padding: 10px 14px; flex: 1; } }
+
+.chk { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; font-size: 0.9rem; color: var(--text); flex: none; margin: 0; }
+.chk input { appearance: none; -webkit-appearance: none; width: 22px; height: 22px; padding: 0; border-radius: 7px; flex: none; cursor: pointer; display: grid; place-items: center; transition: background 0.2s, border 0.2s, transform 0.15s; }
+.chk input::after { content: ""; width: 5px; height: 10px; border: solid #fff; border-width: 0 2.5px 2.5px 0; transform: rotate(45deg) scale(0); margin-top: -2px; transition: transform 0.18s; }
+.chk input:checked { background: linear-gradient(135deg, var(--danger), #ff8a5e); border-color: transparent; }
+.chk input:checked::after { transform: rotate(45deg) scale(1); }
+.chk input:active { transform: scale(0.88); }
+.chk span { font-weight: 600; }

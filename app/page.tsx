@@ -144,7 +144,7 @@ export default function Home() {
         <div className="glass stat"><b>{done.length}/{active}</b><span>done</span></div>
         <div className="glass stat"><b>৳{spent.toFixed(2)}</b><span>spent</span></div>
         <div className="glass stat"><b>৳{planned.toFixed(2)}</b><span>still planned</span></div>
-        {others > 0 && <div className="glass stat"><b>৳{others.toFixed(2)}</b><span>not my money</span></div>}
+        <div className="glass stat"><b>৳{others.toFixed(2)}</b><span>not mine (separate)</span></div>
       </div>
       <div className="progress">
         <motion.div initial={false} animate={{ width: `${pct}%` }} transition={{ type: "spring", stiffness: 90, damping: 18 }} />
@@ -153,9 +153,10 @@ export default function Home() {
       <form className="glass addrow" onSubmit={add}>
         <input placeholder="What do you want to do or buy?" value={title} onChange={(e) => setTitle(e.target.value)} />
         <input className="more" type="number" step="0.01" min="0" placeholder="Price" value={price} onChange={(e) => setPrice(e.target.value)} />
-        <button type="button" className={`whose ${mine ? "" : "off"}`} onClick={() => setMine(!mine)} title="Whose money is this?">
-          {mine ? "My money" : "Not mine"}
-        </button>
+        <label className="chk">
+          <input type="checkbox" checked={!mine} onChange={(e) => setMine(!e.target.checked)} />
+          <span>Not mine</span>
+        </label>
         <button className="btn">Add</button>
       </form>
 

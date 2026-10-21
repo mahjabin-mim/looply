@@ -39,13 +39,10 @@ export default function ItemModal({
         <h3>Edit item</h3>
         <div className="field"><label>What</label><input value={title} onChange={(e) => setTitle(e.target.value)} autoFocus required /></div>
         <div className="field"><label>Price</label><input type="number" step="0.01" min="0" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="0.00" /></div>
-        <div className="field">
-          <label>Whose money is this?</label>
-          <div className="seg">
-            <button type="button" className={mine ? "on" : ""} onClick={() => setMine(true)}>My money</button>
-            <button type="button" className={!mine ? "on" : ""} onClick={() => setMine(false)}>Not mine</button>
-          </div>
-        </div>
+        <label className="chk" style={{ marginBottom: 14 }}>
+          <input type="checkbox" checked={!mine} onChange={(e) => setMine(!e.target.checked)} />
+          <span>Not mine</span>
+        </label>
         <div className="field"><label>Date & time done</label><input type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} /></div>
         <div className="actions">
           <button type="button" className="ghost" onClick={onClose}>Cancel</button>
