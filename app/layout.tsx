@@ -1,5 +1,6 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
+import InstallPrompt from "@/components/InstallPrompt";
 import RegisterSW from "@/components/RegisterSW";
 
 export const metadata: Metadata = {
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="blob b2" />
         <div className="blob b3" />
         <RegisterSW />
+        <InstallPrompt />
         {children}
       </body>
     </html>
