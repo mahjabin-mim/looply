@@ -9,6 +9,8 @@ export interface User {
   email: string;
   name: string;
   passwordHash: string;
+  resetHash?: string;
+  resetExpires?: number;
 }
 
 export interface Item {
@@ -72,3 +74,5 @@ export function rollover(data: Data, userId: string): boolean {
   }
   return changed;
 }
+
+export const sha = (s: string) => crypto.createHash("sha256").update(s).digest("hex");

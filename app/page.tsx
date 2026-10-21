@@ -5,6 +5,7 @@ import type { Item } from "@/lib/db";
 import AuthForm from "@/components/AuthForm";
 import ItemRow from "@/components/ItemRow";
 import ItemModal from "@/components/ItemModal";
+import PasswordModal from "@/components/PasswordModal";
 import ThemeToggle from "@/components/ThemeToggle";
 
 type User = { name: string; email: string } | null;
@@ -25,6 +26,7 @@ export default function Home() {
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [editing, setEditing] = useState<Item | null>(null);
+  const [pwOpen, setPwOpen] = useState(false);
 
   const refresh = useCallback(async () => {
     const r = await fetch("/api/items");
@@ -102,6 +104,7 @@ export default function Home() {
         <div className="who">
           <ThemeToggle />
           <span>Hi, {user.name}</span>
+          <button className="ghost" onClick={() => setPwOpen(true)}>Password</button>
           <button className="ghost" onClick={logout}>Log out</button>
         </div>
       </motion.div>
@@ -156,6 +159,8 @@ export default function Home() {
           <AnimatePresence initial={false}>{skipped.map(row)}</AnimatePresence>
         </motion.div>
       </AnimatePresence>
+
+      <AnimatePresence>{pwOpen && <PasswordModal onClose={() => setPwOpen(false)} />}</AnimatePresence>
 
       <AnimatePresence>
         {editing && (

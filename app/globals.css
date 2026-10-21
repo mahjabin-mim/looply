@@ -126,3 +126,6 @@ label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 
 .theme { width: 38px; height: 38px; border-radius: 12px; background: var(--soft); font-size: 1.1rem; display: grid; place-items: center; overflow: hidden; }
 .theme:hover { background: var(--soft-hover); }
 .theme-float { position: fixed; top: 16px; right: 16px; z-index: 5; }
+.ok { color: var(--accent2); font-size: 0.85rem; margin-bottom: 12px; }
+.link { background: none; color: var(--muted); font-size: 0.82rem; padding: 0; }
+.link:hover { color: var(--accent2); }
