@@ -1,0 +1,101 @@
+:root {
+  --bg: #0f1020;
+  --card: rgba(255, 255, 255, 0.07);
+  --border: rgba(255, 255, 255, 0.13);
+  --text: #f1f1f8;
+  --muted: #9a9bb8;
+  --accent: #8b7bff;
+  --accent2: #38d6c4;
+  --danger: #ff6b8b;
+  --warn: #ffc15e;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+.blob { position: fixed; border-radius: 50%; filter: blur(90px); opacity: 0.45; z-index: 0; pointer-events: none; }
+.b1 { width: 420px; height: 420px; background: #6b4fff; top: -120px; left: -100px; animation: float1 16s ease-in-out infinite; }
+.b2 { width: 380px; height: 380px; background: #12c2b0; bottom: -120px; right: -80px; animation: float2 19s ease-in-out infinite; }
+.b3 { width: 300px; height: 300px; background: #ff5fa2; top: 40%; left: 55%; opacity: 0.25; animation: float3 22s ease-in-out infinite; }
+@keyframes float1 { 50% { transform: translate(120px, 90px) scale(1.15); } }
+@keyframes float2 { 50% { transform: translate(-140px, -70px) scale(1.1); } }
+@keyframes float3 { 50% { transform: translate(-110px, 80px) scale(0.85); } }
+
+main { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; padding: 28px 16px 80px; }
+.glass { background: var(--card); border: 1px solid var(--border); backdrop-filter: blur(16px); border-radius: 18px; }
+
+h1 { margin: 0; font-size: 1.6rem; letter-spacing: -0.02em; }
+.grad { background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+button { font: inherit; color: inherit; cursor: pointer; border: 0; transition: transform 0.15s, background 0.2s, opacity 0.2s; }
+button:active { transform: scale(0.95); }
+.btn { padding: 10px 18px; border-radius: 12px; background: linear-gradient(135deg, var(--accent), #5b8cff); font-weight: 600; box-shadow: 0 6px 20px rgba(110, 90, 255, 0.35); }
+.btn:hover { opacity: 0.9; }
+.btn:disabled { opacity: 0.5; }
+.ghost { background: rgba(255, 255, 255, 0.08); padding: 8px 14px; border-radius: 10px; }
+.ghost:hover { background: rgba(255, 255, 255, 0.16); }
+.icon { background: transparent; width: 34px; height: 34px; border-radius: 10px; font-size: 1rem; color: var(--muted); }
+.icon:hover { background: rgba(255, 255, 255, 0.12); color: var(--text); }
+
+input {
+  font: inherit; color: var(--text); width: 100%; padding: 11px 14px; border-radius: 12px;
+  background: rgba(255, 255, 255, 0.07); border: 1px solid var(--border); outline: none; transition: border 0.2s, box-shadow 0.2s;
+  color-scheme: dark;
+}
+input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(139, 123, 255, 0.25); }
+label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 5px; }
+
+.topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
+.who { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 0.9rem; }
+
+.monthbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; margin-bottom: 14px; }
+.monthbar h2 { margin: 0; font-size: 1.25rem; min-width: 190px; text-align: center; }
+.stats { display: flex; gap: 12px; margin-bottom: 14px; }
+.stat { flex: 1; padding: 14px 16px; }
+.stat b { display: block; font-size: 1.3rem; }
+.stat span { color: var(--muted); font-size: 0.78rem; }
+.progress { height: 8px; border-radius: 99px; background: rgba(255, 255, 255, 0.1); overflow: hidden; margin-bottom: 18px; }
+.progress > div { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; }
+
+.addrow { display: flex; gap: 10px; padding: 12px; margin-bottom: 20px; }
+.addrow .more { width: 120px; flex: none; }
+
+.section-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin: 22px 4px 8px; }
+.item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: 8px; }
+.check {
+  width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--muted); background: transparent; flex: none;
+  display: grid; place-items: center; padding: 0;
+}
+.check:hover { border-color: var(--accent2); }
+.check.on { background: linear-gradient(135deg, var(--accent2), #2bb0ff); border-color: transparent; }
+.check svg { width: 14px; height: 14px; stroke: #04221e; stroke-width: 3.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.item .body { flex: 1; min-width: 0; }
+.item .title { font-weight: 600; word-break: break-word; position: relative; display: inline-block; }
+.item.done .title { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--accent2); }
+.meta { font-size: 0.78rem; color: var(--muted); margin-top: 3px; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.tag { padding: 1px 8px; border-radius: 99px; background: rgba(255, 193, 94, 0.15); color: var(--warn); }
+.price { font-weight: 700; color: var(--accent2); }
+.empty { text-align: center; color: var(--muted); padding: 36px 0; }
+
+.overlay { position: fixed; inset: 0; background: rgba(5, 5, 15, 0.6); backdrop-filter: blur(4px); display: grid; place-items: center; z-index: 10; padding: 16px; }
+.modal { width: 100%; max-width: 420px; padding: 22px; background: #1a1b30; }
+.modal h3 { margin: 0 0 16px; }
+.field { margin-bottom: 14px; }
+.actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+
+.auth { max-width: 380px; margin: 12vh auto 0; padding: 28px; }
+.auth h1 { text-align: center; margin-bottom: 6px; }
+.auth p.sub { text-align: center; color: var(--muted); margin: 0 0 22px; }
+.error { color: var(--danger); font-size: 0.85rem; margin-bottom: 12px; }
+.switch { text-align: center; margin-top: 16px; color: var(--muted); font-size: 0.9rem; }
+.switch button { background: none; color: var(--accent2); font-weight: 600; padding: 0 4px; }
+
+@media (max-width: 520px) {
+  .addrow { flex-wrap: wrap; }
+  .addrow .more { width: calc(50% - 5px); flex: 1; }
+  .monthbar h2 { min-width: 140px; font-size: 1.05rem; }
+}
