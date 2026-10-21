@@ -49,7 +49,7 @@ export default function AuthForm({ onDone }: { onDone: () => void }) {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ type: "spring", stiffness: 140, damping: 16 }}
     >
-      <h1 className="grad">Monthly List</h1>
+      <h1 className="grad">Looply</h1>
       <p className="sub">{sub}</p>
       {mode === "signup" && (
         <motion.div className="field" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}>

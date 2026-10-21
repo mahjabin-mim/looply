@@ -1,6 +1,6 @@
 {
-  "name": "Monthly List",
-  "short_name": "Monthly",
+  "name": "Looply",
+  "short_name": "Looply",
   "description": "Month-by-month checklist that carries unfinished items forward.",
   "start_url": "/",
   "scope": "/",

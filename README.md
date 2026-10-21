@@ -1,4 +1,4 @@
-# Monthly List
+# Looply
 
 Lightweight Next.js app: one checklist per month. Tick items as done (with price + date/time),
 mark items "not now", edit anything, and unfinished items are automatically copied into the current month.

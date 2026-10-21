@@ -1,6 +1,6 @@
 // Minimal service worker: makes the app installable and keeps the shell available offline.
 // API calls always go to the network so data is never stale or cached.
-const CACHE = "monthly-v1";
+const CACHE = "looply-v2";
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(["/", "/icons/icon-192.png"])));
   self.skipWaiting();

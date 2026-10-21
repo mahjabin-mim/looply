@@ -3,11 +3,11 @@ import type { Metadata, Viewport } from "next";
 import RegisterSW from "@/components/RegisterSW";
 
 export const metadata: Metadata = {
-  title: "Monthly List",
+  title: "Looply",
   description: "A simple month-by-month checklist that carries unfinished items forward.",
   manifest: "/manifest.webmanifest",
   icons: { icon: "/icons/icon-192.png", apple: "/icons/apple-touch-icon.png" },
-  appleWebApp: { capable: true, title: "Monthly", statusBarStyle: "black-translucent" },
+  appleWebApp: { capable: true, title: "Looply", statusBarStyle: "black-translucent" },
 };
 
 export const viewport: Viewport = {

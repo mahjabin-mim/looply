@@ -14,9 +14,9 @@ async function sendMail(to: string, link: string) {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      from: process.env.MAIL_FROM || "Monthly List <onboarding@resend.dev>",
+      from: process.env.MAIL_FROM || "Looply <onboarding@resend.dev>",
       to,
-      subject: "Reset your Monthly List password",
+      subject: "Reset your Looply password",
       html: `<p>Click to reset your password (valid for 1 hour):</p><p><a href="${link}">${link}</a></p>`,
     }),
   });

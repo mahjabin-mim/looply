@@ -137,7 +137,7 @@ export default function Home() {
   return (
     <main>
       <motion.div className="topbar" initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="grad">Monthly List</h1>
+        <h1 className="grad">Looply</h1>
         <div className="who">
           <ThemeToggle />
           <span>Hi, {user.name}</span>
