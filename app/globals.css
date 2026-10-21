@@ -65,6 +65,14 @@ button:active { transform: scale(0.95); }
 .ghost:hover { background: var(--soft-hover); }
 .icon { background: transparent; width: 34px; height: 34px; border-radius: 10px; font-size: 1rem; color: var(--muted); }
 .icon:hover { background: var(--soft-hover); color: var(--text); }
+.icon { display: grid; place-items: center; padding: 0; }
+.icon svg, .snooze svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.icon:hover:last-child { color: var(--danger); }
+.snooze { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 99px; font-size: 0.8rem; font-weight: 600; color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); border: 1px solid color-mix(in srgb, var(--warn) 30%, transparent); white-space: nowrap; }
+.snooze svg { width: 15px; height: 15px; }
+.snooze:hover { background: color-mix(in srgb, var(--warn) 26%, transparent); }
+.snooze.back { color: var(--accent2); background: color-mix(in srgb, var(--accent2) 14%, transparent); border-color: color-mix(in srgb, var(--accent2) 30%, transparent); }
+.snooze.back:hover { background: color-mix(in srgb, var(--accent2) 26%, transparent); }
 
 input {
   font: inherit; color: var(--text); width: 100%; padding: 11px 14px; border-radius: 12px;
@@ -146,3 +154,9 @@ label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 
 .gbtn:active { transform: scale(0.97); }
 .sep { border: 0; height: 1px; background: var(--border); margin: 22px 0; }
 input:disabled { opacity: 0.6; cursor: not-allowed; }
+
+@media (max-width: 520px) {
+  .snooze span { display: none; }
+  .snooze { padding: 0; width: 36px; height: 36px; justify-content: center; }
+  .snooze svg { width: 18px; height: 18px; }
+}
