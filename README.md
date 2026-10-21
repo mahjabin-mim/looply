@@ -12,7 +12,7 @@ Forgot-password emails are sent via [Resend](https://resend.com) when `RESEND_AP
 
 Data is stored in `data/db.json` (git-ignored). Set `AUTH_SECRET` in production.
 
-> The JSON file store suits local / single-server use. For serverless hosts (e.g. Vercel) swap `lib/db.ts` for a hosted DB.
+> Storage: Upstash Redis or Postgres (Neon) when their env vars are present (hosting); otherwise a local JSON file.
 
 ## Mobile app (PWA)
 The site is an installable PWA. Open the deployed (HTTPS) URL on your phone:
