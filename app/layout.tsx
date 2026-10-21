@@ -1,9 +1,20 @@
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import RegisterSW from "@/components/RegisterSW";
 
 export const metadata: Metadata = {
   title: "Monthly List",
   description: "A simple month-by-month checklist that carries unfinished items forward.",
+  manifest: "/manifest.webmanifest",
+  icons: { icon: "/icons/icon-192.png", apple: "/icons/apple-touch-icon.png" },
+  appleWebApp: { capable: true, title: "Monthly", statusBarStyle: "black-translucent" },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#0f1020",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -20,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="blob b1" />
         <div className="blob b2" />
         <div className="blob b3" />
+        <RegisterSW />
         {children}
       </body>
     </html>
