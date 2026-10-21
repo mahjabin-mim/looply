@@ -8,7 +8,8 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  passwordHash: string;
+  passwordHash: string; // empty for Google-only accounts
+  googleId?: string;
   resetHash?: string;
   resetExpires?: number;
 }

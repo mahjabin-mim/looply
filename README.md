@@ -18,3 +18,10 @@ Data is stored in `data/db.json` (git-ignored). Set `AUTH_SECRET` in production.
 The site is an installable PWA. Open the deployed (HTTPS) URL on your phone:
 - **Android / Chrome:** menu → *Install app* / *Add to Home screen*
 - **iPhone / Safari:** Share → *Add to Home Screen*
+
+## Google sign-in
+1. [Google Cloud Console](https://console.cloud.google.com/apis/credentials) → *Create credentials* → *OAuth client ID* → type **Web application**.
+2. Add authorized redirect URIs: `http://localhost:3000/api/auth/google/callback` and `https://YOUR-SITE/api/auth/google/callback`.
+3. Put the client ID/secret in `.env.local` (see `.env.local.example`) and restart. The "Continue with Google" button appears automatically once configured.
+
+Signing in with Google links to an existing account with the same email, or creates a new one.

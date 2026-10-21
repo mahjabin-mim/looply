@@ -28,7 +28,7 @@ export default function PasswordModal({ onClose }: { onClose: () => void }) {
         transition={{ type: "spring", stiffness: 220, damping: 22 }}
       >
         <h3>Change password</h3>
-        <div className="field"><label>Current password</label><input type="password" required autoFocus value={current} onChange={(e) => setCurrent(e.target.value)} /></div>
+        <div className="field"><label>Current password <span style={{ opacity: 0.7 }}>(leave empty if you signed in with Google)</span></label><input type="password" autoFocus value={current} onChange={(e) => setCurrent(e.target.value)} /></div>
         <div className="field"><label>New password</label><input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" /></div>
         {err && <div className="error">{err}</div>}
         {done && <div className="ok">Password updated ✓</div>}
