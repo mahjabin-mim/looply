@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.looply.app",
+      "sha256_cert_fingerprints": ["40:C5:09:75:CC:45:77:BF:C5:77:87:C9:51:71:5F:5F:38:D3:23:CE:14:D3:0B:4F:C5:E9:EA:75:C9:E0:20:62"]
+    }
+  }
+]
