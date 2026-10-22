@@ -85,16 +85,15 @@ export default function ProfileModal({
         <Reminders />
       </section>
 
-      <section className="set-section">
-        <h4>Your data</h4>
-        <p className="fine">Download everything you&apos;ve added.</p>
-        <div className="btn-row">
-          <a className="btn-ghost" href="/api/export?format=xlsx">Excel (.xlsx)</a>
-          <a className="btn-ghost" href="/api/export?format=csv">CSV</a>
-          {showApk && <a className="btn-ghost" href="/Looply.apk" download>Android app (APK)</a>}
-        </div>
-        {showApk && <p className="fine">The Android app needs Android 7.0 or newer. Open the file and allow installing from this source.</p>}
-      </section>
+      {showApk && (
+        <section className="set-section">
+          <h4>Android app</h4>
+          <p className="fine">Needs Android 7.0 or newer. Open the file and allow installing from this source.</p>
+          <div className="btn-row">
+            <a className="btn-ghost" href="/Looply.apk" download>Download APK</a>
+          </div>
+        </section>
+      )}
 
       <section className="set-section danger-zone">
         <h4>Delete account</h4>
