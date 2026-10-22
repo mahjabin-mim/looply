@@ -91,6 +91,9 @@ export default function AuthForm({ onDone }: { onDone: () => void }) {
           </a>
         </>
       )}
+      <div className="apk">
+        <a href="/Looply.apk" download>⬇ Download the Android app (APK)</a>
+      </div>
       <div className="switch">
         {mode === "login" ? "New here?" : mode === "signup" ? "Already have an account?" : "Remembered it?"}
         <button type="button" onClick={() => go(mode === "login" ? "signup" : "login")}>

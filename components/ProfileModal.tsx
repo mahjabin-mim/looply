@@ -94,6 +94,13 @@ export default function ProfileModal({
 
         <hr className="sep" />
         <div>
+          <h4 style={{ margin: "0 0 8px" }}>Android app</h4>
+          <p className="hint" style={{ margin: "0 0 12px" }}>Install Looply on an Android phone (Android 7.0+). Open the file and allow installing from this source.</p>
+          <a className="ghost dl" href="/Looply.apk" download>⬇ Download APK</a>
+        </div>
+
+        <hr className="sep" />
+        <div>
           <h4 style={{ margin: "0 0 8px" }}>Your data</h4>
           <p className="hint" style={{ margin: "0 0 12px" }}>Download everything you've added.</p>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>

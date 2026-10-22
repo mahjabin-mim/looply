@@ -230,3 +230,7 @@ input:disabled { opacity: 0.6; cursor: not-allowed; }
 .danger { padding: 9px 16px; border-radius: 10px; font-weight: 600; background: color-mix(in srgb, var(--danger) 14%, transparent); color: var(--danger); border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent); }
 .danger:hover { background: color-mix(in srgb, var(--danger) 24%, transparent); }
 .danger.solid { background: var(--danger); color: #fff; border-color: transparent; }
+
+.apk { text-align: center; margin-top: 14px; }
+.apk a { color: var(--muted); font-size: 0.82rem; text-decoration: none; }
+.apk a:hover { color: var(--accent2); text-decoration: underline; }
