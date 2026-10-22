@@ -241,7 +241,7 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      <AnimatePresence>{profileOpen && <ProfileModal user={user} onClose={() => setProfileOpen(false)} onNameChange={setUser} />}</AnimatePresence>
+      <AnimatePresence>{profileOpen && <ProfileModal user={user} onClose={() => setProfileOpen(false)} onNameChange={setUser} onDeleted={() => { setProfileOpen(false); setUser(null); setItems([]); setBudgets([]); setMonth(""); }} />}</AnimatePresence>
 
       <AnimatePresence>
         {editing && (

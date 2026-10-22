@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import Reminders from "./Reminders";
 
 type User = { name: string; email: string };
 
@@ -8,17 +9,21 @@ const post = (url: string, method: string, body: object) =>
   fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 
 export default function ProfileModal({
-  user, onClose, onNameChange,
+  user, onClose, onNameChange, onDeleted,
 }: {
   user: User;
   onClose: () => void;
   onNameChange: (u: User) => void;
+  onDeleted: () => void;
 }) {
   const [name, setName] = useState(user.name);
   const [nameMsg, setNameMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [current, setCurrent] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [delOpen, setDelOpen] = useState(false);
+  const [delPw, setDelPw] = useState("");
+  const [delErr, setDelErr] = useState("");
   const [pwMsg, setPwMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   async function saveName(e: React.FormEvent) {
@@ -37,6 +42,14 @@ export default function ProfileModal({
       setPwMsg({ ok: true, text: "Password updated ✓" });
       setCurrent(""); setPassword(""); setConfirm("");
     } else setPwMsg({ ok: false, text: (await r.json()).error || "Something went wrong" });
+  }
+
+  async function deleteAccount(e: React.FormEvent) {
+    e.preventDefault();
+    setDelErr("");
+    const r = await post("/api/auth/account", "DELETE", { password: delPw, confirm: delPw });
+    if (r.ok) onDeleted();
+    else setDelErr((await r.json()).error || "Something went wrong");
   }
 
   const note = (m: { ok: boolean; text: string } | null) =>
@@ -75,6 +88,42 @@ export default function ProfileModal({
             <button className="btn">Update password</button>
           </div>
         </form>
+
+        <hr className="sep" />
+        <Reminders />
+
+        <hr className="sep" />
+        <div>
+          <h4 style={{ margin: "0 0 8px" }}>Your data</h4>
+          <p className="hint" style={{ margin: "0 0 12px" }}>Download everything you've added.</p>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <a className="ghost dl" href="/api/export?format=xlsx">Excel (.xlsx)</a>
+            <a className="ghost dl" href="/api/export?format=csv">CSV</a>
+          </div>
+        </div>
+
+        <hr className="sep" />
+        <div>
+          <h4 style={{ margin: "0 0 8px", color: "var(--danger)" }}>Delete account</h4>
+          {!delOpen ? (
+            <>
+              <p className="hint" style={{ margin: "0 0 12px" }}>Permanently removes your account, items and budgets. This can't be undone.</p>
+              <button type="button" className="danger" onClick={() => setDelOpen(true)}>Delete my account…</button>
+            </>
+          ) : (
+            <form onSubmit={deleteAccount}>
+              <div className="field">
+                <label>Type your password to confirm <span style={{ opacity: 0.7 }}>(Google-only accounts: type DELETE)</span></label>
+                <input type="password" required value={delPw} onChange={(e) => { setDelPw(e.target.value); setDelErr(""); }} />
+              </div>
+              {delErr && <div className="error">{delErr}</div>}
+              <div className="actions" style={{ marginTop: 6 }}>
+                <button type="button" className="ghost" onClick={() => { setDelOpen(false); setDelPw(""); }}>Cancel</button>
+                <button className="danger solid">Delete forever</button>
+              </div>
+            </form>
+          )}
+        </div>
       </motion.div>
     </motion.div>
   );

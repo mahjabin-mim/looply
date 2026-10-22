@@ -22,3 +22,27 @@ self.addEventListener("fetch", (e) => {
       .catch(() => caches.match(e.request).then((m) => m || caches.match("/")))
   );
 });
+
+// Push reminders
+self.addEventListener("push", (e) => {
+  let d = { title: "Looply", body: "", url: "/" };
+  try { d = { ...d, ...e.data.json() }; } catch {}
+  e.waitUntil(
+    self.registration.showNotification(d.title, {
+      body: d.body,
+      icon: "/icons/icon-192.png",
+      badge: "/icons/icon-192.png",
+      data: { url: d.url },
+    }),
+  );
+});
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || "/";
+  e.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+      for (const c of list) if ("focus" in c) return c.focus();
+      return clients.openWindow(url);
+    }),
+  );
+});

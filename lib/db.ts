@@ -38,10 +38,18 @@ export interface Budget {
   savings: number; // amount to put aside for the future
 }
 
-interface Data {
+export interface PushSub {
+  userId: string;
+  endpoint: string;
+  keys: { p256dh: string; auth: string };
+  tz: string; // IANA time zone, so reminders follow the user's own calendar
+}
+
+export interface Data {
   users: User[];
   items: Item[];
   budgets: Budget[];
+  push: PushSub[];
 }
 
 const DIR = path.join(process.cwd(), "data");
@@ -58,7 +66,7 @@ let ready: Promise<unknown> | null = null;
 const ensureTable = () =>
   (ready ??= sql!`CREATE TABLE IF NOT EXISTS app_data (key text PRIMARY KEY, value jsonb NOT NULL)`);
 
-const empty = (): Data => ({ users: [], items: [], budgets: [] });
+const empty = (): Data => ({ users: [], items: [], budgets: [], push: [] });
 
 /** Stored in Upstash Redis or Postgres (Neon) when configured (hosting), otherwise in data/db.json (local). */
 export async function load(): Promise<Data> {
