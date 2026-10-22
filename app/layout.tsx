@@ -1,7 +1,10 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import InstallPrompt from "@/components/InstallPrompt";
 import RegisterSW from "@/components/RegisterSW";
+
+const sans = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 
 export const metadata: Metadata = {
   title: "Looply",
@@ -15,12 +18,12 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#0f1020",
+  themeColor: "#0d0e1a",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={sans.variable} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{

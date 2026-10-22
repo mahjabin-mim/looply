@@ -60,7 +60,7 @@ export default function InstallPrompt() {
     <AnimatePresence>
       {show && (
         <motion.div
-          className="install glass"
+          className="install card"
           initial={{ y: 120, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 120, opacity: 0 }}
@@ -76,7 +76,7 @@ export default function InstallPrompt() {
             )}
           </div>
           {!(ios && !event) && <button className="btn" onClick={install}>Install</button>}
-          <button className="icon" onClick={dismiss} aria-label="Dismiss">✕</button>
+          <button className="icon-btn" onClick={dismiss} aria-label="Dismiss">✕</button>
         </motion.div>
       )}
     </AnimatePresence>

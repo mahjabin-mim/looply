@@ -81,13 +81,13 @@ export default function Reminders() {
 
   return (
     <div>
-      <h4 style={{ margin: "0 0 8px" }}>Reminders</h4>
-      <p className="hint" style={{ margin: "0 0 12px" }}>{text[state]}</p>
+      <h4>Reminders</h4>
+      <p className="fine">{text[state]}</p>
       {state === "off" && <button className="btn" onClick={enable} disabled={busy}>Turn on reminders</button>}
       {state === "on" && (
-        <div style={{ display: "flex", gap: 8 }}>
-          <button className="ghost" onClick={test} disabled={busy}>Send test</button>
-          <button className="ghost" onClick={disable} disabled={busy}>Turn off</button>
+        <div className="btn-row">
+          <button className="btn-ghost" onClick={test} disabled={busy}>Send test</button>
+          <button className="btn-ghost" onClick={disable} disabled={busy}>Turn off</button>
         </div>
       )}
       {msg && <div className={msg.startsWith("Test") ? "ok" : "error"} style={{ marginTop: 10 }}>{msg}</div>}
