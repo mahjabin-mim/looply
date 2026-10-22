@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { useShowApk } from "@/lib/useShowApk";
 
 type Mode = "login" | "signup" | "forgot" | "reset";
 
@@ -12,6 +13,7 @@ export default function AuthForm({ onDone }: { onDone: () => void }) {
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
   const [google, setGoogle] = useState(false);
+  const showApk = useShowApk();
 
   useEffect(() => {
     const q = new URLSearchParams(location.search);
@@ -91,9 +93,11 @@ export default function AuthForm({ onDone }: { onDone: () => void }) {
           </a>
         </>
       )}
-      <div className="apk">
-        <a href="/Looply.apk" download>⬇ Download the Android app (APK)</a>
-      </div>
+      {showApk && (
+        <div className="apk">
+          <a href="/Looply.apk" download>⬇ Download the Android app (APK)</a>
+        </div>
+      )}
       <div className="switch">
         {mode === "login" ? "New here?" : mode === "signup" ? "Already have an account?" : "Remembered it?"}
         <button type="button" onClick={() => go(mode === "login" ? "signup" : "login")}>

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Reminders from "./Reminders";
+import { useShowApk } from "@/lib/useShowApk";
 
 type User = { name: string; email: string };
 
@@ -21,6 +22,7 @@ export default function ProfileModal({
   const [current, setCurrent] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const showApk = useShowApk();
   const [delOpen, setDelOpen] = useState(false);
   const [delPw, setDelPw] = useState("");
   const [delErr, setDelErr] = useState("");
@@ -92,12 +94,16 @@ export default function ProfileModal({
         <hr className="sep" />
         <Reminders />
 
-        <hr className="sep" />
-        <div>
-          <h4 style={{ margin: "0 0 8px" }}>Android app</h4>
-          <p className="hint" style={{ margin: "0 0 12px" }}>Install Looply on an Android phone (Android 7.0+). Open the file and allow installing from this source.</p>
-          <a className="ghost dl" href="/Looply.apk" download>⬇ Download APK</a>
-        </div>
+        {showApk && (
+          <>
+            <hr className="sep" />
+            <div>
+              <h4 style={{ margin: "0 0 8px" }}>Android app</h4>
+              <p className="hint" style={{ margin: "0 0 12px" }}>Install Looply on an Android phone (Android 7.0+). Open the file and allow installing from this source.</p>
+              <a className="ghost dl" href="/Looply.apk" download>⬇ Download APK</a>
+            </div>
+          </>
+        )}
 
         <hr className="sep" />
         <div>
