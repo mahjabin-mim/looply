@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJson } from "@/lib/http";
 import { currentUser } from "@/lib/auth";
 import { load, save } from "@/lib/db";
 
@@ -6,7 +7,7 @@ import { load, save } from "@/lib/db";
 export async function PUT(req: Request) {
   const me = await currentUser();
   if (!me) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const b = await req.json();
+  const b = await readJson(req);
   const amount = Number(b.amount);
   if (!Number.isFinite(amount)) return NextResponse.json({ error: "Enter an amount" }, { status: 400 });
   if (!/^\d{4}-\d{2}$/.test(b.asOf)) return NextResponse.json({ error: "Bad month" }, { status: 400 });

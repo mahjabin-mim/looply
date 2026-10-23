@@ -54,9 +54,10 @@ test("five wrong PINs make you wait", async ({ page }) => {
   await page.goto("/");
   await turnOnLock(page, "1234");
   await page.reload();
-  for (let i = 0; i < 5; i++) {
+  for (let i = 1; i <= 5; i++) {
     await page.keyboard.type("9999");
-    await page.waitForTimeout(600);
+    // wait for each wrong attempt to register before the next (typing during the shake is ignored)
+    if (i < 5) await expect(page.locator(".lock-msg")).toHaveText(`Wrong PIN · ${5 - i} ${5 - i === 1 ? "try" : "tries"} left`);
   }
   await expect(page.locator(".lock-top p").first()).toHaveText(/Too many tries\. Wait \d+s/);
 });
@@ -71,7 +72,7 @@ test("fingerprint unlock (simulated sensor)", async ({ page }) => {
   await page.goto("/");
   await turnOnLock(page, "1234");
   await page.getByRole("button", { name: "Use fingerprint too" }).click();
-  await expect(page.locator(".sheet")).toContainText("Fingerprint unlock is on");
+  await expect(page.locator(".sheet")).toContainText("Unlock with fingerprint is on");
 
   await page.reload();
   await expect(app(page)).toBeVisible(); // the sensor accepts → straight in
@@ -79,6 +80,9 @@ test("fingerprint unlock (simulated sensor)", async ({ page }) => {
   await cdp.send("WebAuthn.setUserVerified", { authenticatorId, isUserVerified: false });
   await page.reload();
   await expect(locked(page)).toBeVisible();
+  // the automatic attempt fails quietly; tapping the fingerprint key explains it
+  await expect(page.locator(".lock-msg")).toHaveText("");
+  await page.getByRole("button", { name: "Use fingerprint" }).click();
   await expect(page.locator(".lock-msg")).toHaveText("Fingerprint didn't work — use your PIN");
 });
 

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJson } from "@/lib/http";
 import bcrypt from "bcryptjs";
 import { currentUser, destroySession } from "@/lib/auth";
 import { load, save } from "@/lib/db";
@@ -6,7 +7,7 @@ import { load, save } from "@/lib/db";
 export async function DELETE(req: Request) {
   const me = await currentUser();
   if (!me) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const { password, confirm } = await req.json();
+  const { password, confirm } = await readJson(req);
   // password accounts confirm with their password, Google-only accounts by typing DELETE
   if (me.passwordHash) {
     if (!(await bcrypt.compare(String(password ?? ""), me.passwordHash)))

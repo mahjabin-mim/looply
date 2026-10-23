@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
+import { readJson } from "@/lib/http";
 import { currentUser } from "@/lib/auth";
 import { load, save } from "@/lib/db";
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   const user = await currentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const b = await req.json();
+  const b = await readJson(req);
   const data = await load();
   const it = data.items.find((i) => i.id === params.id && i.userId === user.id);
   if (!it) return NextResponse.json({ error: "Not found" }, { status: 404 });

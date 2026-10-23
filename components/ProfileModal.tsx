@@ -1,10 +1,11 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Reminders from "./Reminders";
 import Sheet from "./Sheet";
 import AppLockSettings from "./AppLockSettings";
 import { useShowApk } from "@/lib/useShowApk";
+import { isApple, isStandalone } from "@/lib/platform";
 
 type User = { name: string; email: string };
 
@@ -25,6 +26,8 @@ export default function ProfileModal({
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const showApk = useShowApk();
+  const [iosInstall, setIosInstall] = useState(false);
+  useEffect(() => setIosInstall(isApple() && !isStandalone()), []);
   const [delOpen, setDelOpen] = useState(false);
   const [delPw, setDelPw] = useState("");
   const [delErr, setDelErr] = useState("");
@@ -89,6 +92,18 @@ export default function ProfileModal({
       <section className="set-section">
         <Reminders />
       </section>
+
+      {iosInstall && (
+        <section className="set-section">
+          <h4>Install on iPhone or iPad</h4>
+          <ol className="steps">
+            <li>Open Looply in <b>Safari</b>.</li>
+            <li>Tap <b>Share</b> <svg className="share-ico" viewBox="0 0 24 24" aria-hidden><path d="M12 15V3M8 7l4-4 4 4M6 11H5a1 1 0 00-1 1v8a1 1 0 001 1h14a1 1 0 001-1v-8a1 1 0 00-1-1h-1" /></svg> at the bottom of the screen.</li>
+            <li>Choose <b>Add to Home Screen</b>, then <b>Add</b>.</li>
+          </ol>
+          <p className="fine">Open Looply from the home screen to get full screen, Face ID lock and reminders (iOS 16.4 or newer).</p>
+        </section>
+      )}
 
       {showApk && (
         <section className="set-section">

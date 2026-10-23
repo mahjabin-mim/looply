@@ -522,3 +522,12 @@ body.has-nav .install { bottom: calc(92px + env(safe-area-inset-bottom)); }
   .avatar-name, .chev { display: none; }
   .avatar-btn { padding: 4px; }
 }
+
+/* ---------- iPhone ---------- */
+.share-ico { width: 15px; height: 15px; display: inline-block; vertical-align: -2px; stroke-width: 2.2; color: var(--accent); }
+.steps { margin: 0; padding-left: 20px; color: var(--text-2); font-size: 0.92rem; line-height: 1.7; }
+/* home-screen app on iPhone draws under a white status bar: keep it readable in light mode */
+@media (display-mode: standalone) {
+  :root[data-theme="light"] body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top); background: #15162b; z-index: 100; }
+}
+.lock .chip-btn { margin-top: -12px; }

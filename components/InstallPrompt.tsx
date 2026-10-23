@@ -70,7 +70,7 @@ export default function InstallPrompt() {
           <div className="txt">
             <b>Install Looply</b>
             {help || (ios && !event) ? (
-              <span>Tap <b>Share</b> <span aria-hidden>⎙</span> then <b>Add to Home Screen</b></span>
+              <span>Tap <b>Share</b> <svg className="share-ico" viewBox="0 0 24 24" aria-hidden><path d="M12 15V3M8 7l4-4 4 4M6 11H5a1 1 0 00-1 1v8a1 1 0 001 1h14a1 1 0 001-1v-8a1 1 0 00-1-1h-1" /></svg> then <b>Add to Home Screen</b></span>
             ) : (
               <span>Add it to your home screen like an app</span>
             )}

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJson } from "@/lib/http";
 import { currentUser } from "@/lib/auth";
 import { load, save, rollover, uid, monthKey, Item } from "@/lib/db";
 
@@ -20,7 +21,7 @@ export async function GET() {
 export async function POST(req: Request) {
   const user = await currentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const b = await req.json();
+  const b = await readJson(req);
   const title = String(b.title ?? "").trim();
   if (!title) return NextResponse.json({ error: "Title required" }, { status: 400 });
   const item: Item = {

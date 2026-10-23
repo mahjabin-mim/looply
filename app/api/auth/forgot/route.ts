@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJson } from "@/lib/http";
 import crypto from "crypto";
 import { load, save, sha } from "@/lib/db";
 
@@ -23,7 +24,7 @@ async function sendMail(to: string, link: string) {
 }
 
 export async function POST(req: Request) {
-  const { email } = await req.json();
+  const { email } = await readJson(req);
   const mail = String(email ?? "").trim().toLowerCase();
   const data = await load();
   const user = data.users.find((u) => u.email === mail);

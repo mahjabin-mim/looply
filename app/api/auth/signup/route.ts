@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
+import { readJson } from "@/lib/http";
 import bcrypt from "bcryptjs";
 import { load, save, uid } from "@/lib/db";
 import { createSession } from "@/lib/auth";
 
 export async function POST(req: Request) {
-  const { name, email, password } = await req.json();
+  const { name, email, password } = await readJson(req);
   const mail = String(email ?? "").trim().toLowerCase();
   if (!/^\S+@\S+\.\S+$/.test(mail)) return NextResponse.json({ error: "Enter a valid email" }, { status: 400 });
   if (String(password ?? "").length < 6) return NextResponse.json({ error: "Password must be at least 6 characters" }, { status: 400 });

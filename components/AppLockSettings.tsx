@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { bioAvailable, bioRegister, checkPin, getLock, makeLock, saveLock, type LockConfig } from "@/lib/applock";
+import { bioName } from "@/lib/platform";
 
 type Mode = null | "set" | "change" | "off";
 const digits = (v: string) => v.replace(/\D/g, "").slice(0, 6);
@@ -9,6 +10,7 @@ const digits = (v: string) => v.replace(/\D/g, "").slice(0, 6);
 export default function AppLockSettings({ email, name }: { email: string; name: string }) {
   const [cfg, setCfg] = useState<LockConfig | null>(null);
   const [canBio, setCanBio] = useState(false);
+  const [bio, setBio] = useState("fingerprint");
   const [mode, setMode] = useState<Mode>(null);
   const [cur, setCur] = useState("");
   const [pin, setPin] = useState("");
@@ -19,6 +21,7 @@ export default function AppLockSettings({ email, name }: { email: string; name: 
   useEffect(() => {
     setCfg(getLock(email));
     bioAvailable().then(setCanBio);
+    setBio(bioName());
   }, [email]);
 
   const reset = (m: Mode = null) => { setMode(m); setCur(""); setPin(""); setAgain(""); setMsg(null); };
@@ -44,9 +47,9 @@ export default function AppLockSettings({ email, name }: { email: string; name: 
     try {
       const id = await bioRegister(email, name);
       store({ ...cfg, bio: id });
-      setMsg({ ok: true, text: "Fingerprint unlock is on ✓" });
+      setMsg({ ok: true, text: `Unlock with ${bio} is on ✓` });
     } catch {
-      setMsg({ ok: false, text: "Couldn't set up fingerprint. You can still use your PIN." });
+      setMsg({ ok: false, text: `Couldn't set up ${bio}. You can still use your PIN.` });
     }
   }
 
@@ -80,11 +83,11 @@ export default function AppLockSettings({ email, name }: { email: string; name: 
         </form>
       ) : cfg ? (
         <>
-          <p className="fine">On for this device. Looply asks for your PIN{cfg.bio ? " or fingerprint" : ""} when it opens and after a minute away.</p>
+          <p className="fine">On for this device. Looply asks for your PIN{cfg.bio ? ` or ${bio}` : ""} when it opens and after a minute away.</p>
           <div className="btn-row">
             <button className="btn-ghost" onClick={() => reset("change")}>Change PIN</button>
-            {canBio && !cfg.bio && <button className="btn-ghost" onClick={addBio}>Use fingerprint too</button>}
-            {cfg.bio && <button className="btn-ghost" onClick={() => { store({ ...cfg, bio: undefined }); setMsg({ ok: true, text: "Fingerprint unlock removed" }); }}>Remove fingerprint</button>}
+            {canBio && !cfg.bio && <button className="btn-ghost" onClick={addBio}>Use {bio} too</button>}
+            {cfg.bio && <button className="btn-ghost" onClick={() => { store({ ...cfg, bio: undefined }); setMsg({ ok: true, text: `${bio} unlock removed` }); }}>Remove {bio}</button>}
             <button className="btn-ghost" onClick={() => reset("off")}>Turn off</button>
           </div>
           {msg && <div className={msg.ok ? "ok" : "error"} style={{ marginTop: 10 }}>{msg.text}</div>}

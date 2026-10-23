@@ -35,3 +35,8 @@ npm run test:all    # both
 The end-to-end tests start their own server on port 3100 with a throwaway data folder (`.test-data`) and
 build folder (`.next-test`), so they never touch your real data or a dev server you already have running.
 Speech recognition and the fingerprint sensor are simulated, since a test browser can't hear or touch.
+The iPhone tests run in WebKit (Safari's engine); install it once with `npx playwright install webkit`.
+
+## iPhone & iPad
+Open the site in Safari → Share → **Add to Home Screen**. The home-screen app runs full screen with its own
+launch screen, supports Face ID / Touch ID for the app lock, and gets reminders on iOS 16.4+.

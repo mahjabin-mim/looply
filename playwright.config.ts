@@ -13,12 +13,14 @@ export default defineConfig({
   reporter: [["list"]],
   use: {
     baseURL: `http://localhost:${PORT}`,
-    channel: "chrome", // uses the installed Google Chrome — no browser download needed
     trace: "retain-on-failure",
   },
   projects: [
-    { name: "desktop", testMatch: /\.(desktop|shared)\.spec\.ts$/, use: { viewport: { width: 1280, height: 900 } } },
+    // desktop and Android phone run in the installed Google Chrome — no browser download needed
+    { name: "desktop", testMatch: /\.(desktop|shared)\.spec\.ts$/, use: { channel: "chrome", viewport: { width: 1280, height: 900 } } },
     { name: "phone", testMatch: /\.(phone|shared)\.spec\.ts$/, use: { ...devices["Pixel 7"], channel: "chrome" } },
+    // Safari's engine (WebKit) at iPhone size — run once `npx playwright install webkit` has been done
+    { name: "iphone", testMatch: /\.(ios|shared)\.spec\.ts$/, use: { ...devices["iPhone 14"] } },
   ],
   webServer: {
     command: `rm -rf .test-data && npx next dev -p ${PORT}`,

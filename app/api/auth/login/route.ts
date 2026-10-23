@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
+import { readJson } from "@/lib/http";
 import bcrypt from "bcryptjs";
 import { load } from "@/lib/db";
 import { createSession } from "@/lib/auth";
 
 export async function POST(req: Request) {
-  const { email, password } = await req.json();
+  const { email, password } = await readJson(req);
   const mail = String(email ?? "").trim().toLowerCase();
   const user = (await load()).users.find((u) => u.email === mail);
   if (user && !user.passwordHash)

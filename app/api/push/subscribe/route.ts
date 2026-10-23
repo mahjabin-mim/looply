@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { readJson } from "@/lib/http";
 import { currentUser } from "@/lib/auth";
 import { load, save } from "@/lib/db";
 
@@ -16,7 +17,7 @@ export async function GET() {
 export async function POST(req: Request) {
   const user = await currentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const { subscription, tz } = await req.json();
+  const { subscription, tz } = await readJson(req);
   if (!subscription?.endpoint || !subscription?.keys?.p256dh || !subscription?.keys?.auth)
     return NextResponse.json({ error: "Bad subscription" }, { status: 400 });
   const data = await load();
@@ -34,7 +35,7 @@ export async function POST(req: Request) {
 export async function DELETE(req: Request) {
   const user = await currentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const { endpoint } = await req.json();
+  const { endpoint } = await readJson(req);
   const data = await load();
   data.push = data.push.filter((p) => !(p.userId === user.id && p.endpoint === endpoint));
   await save(data);

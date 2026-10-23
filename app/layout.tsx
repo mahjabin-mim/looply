@@ -11,7 +11,19 @@ export const metadata: Metadata = {
   description: "A simple month-by-month checklist that carries unfinished items forward.",
   manifest: "/manifest.webmanifest",
   icons: { icon: "/icons/icon-192.png", apple: "/icons/apple-touch-icon.png" },
-  appleWebApp: { capable: true, title: "Looply", statusBarStyle: "black-translucent" },
+  appleWebApp: {
+    capable: true,
+    title: "Looply",
+    statusBarStyle: "black-translucent",
+    // launch screens for iPhones added to the home screen (otherwise iOS flashes white)
+    startupImage: (
+      [[440, 956, 3], [402, 874, 3], [430, 932, 3], [393, 852, 3], [428, 926, 3], [390, 844, 3],
+       [375, 812, 3], [414, 896, 3], [414, 896, 2], [375, 667, 2], [320, 568, 2]] as const
+    ).map(([w, h, r]) => ({
+      url: `/splash/${w}x${h}@${r}x.png`,
+      media: `(device-width: ${w}px) and (device-height: ${h}px) and (-webkit-device-pixel-ratio: ${r}) and (orientation: portrait)`,
+    })),
+  },
 };
 
 export const viewport: Viewport = {

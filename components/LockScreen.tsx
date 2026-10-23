@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, useAnimationControls } from "framer-motion";
 import { type LockConfig, MAX_TRIES, bioVerify, checkPin, setWaitUntil, waitUntil } from "@/lib/applock";
+import { bioName, isApple } from "@/lib/platform";
 
 const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "bio", "0", "del"] as const;
 
@@ -30,14 +31,19 @@ export default function LockScreen({
     return () => clearInterval(t);
   }, [waiting]);
 
-  const bio = useCallback(async () => {
+  const [apple, setApple] = useState(false);
+  useEffect(() => setApple(isApple()), []);
+
+  // quiet: an automatic attempt that the phone declines shouldn't show an error
+  const bio = useCallback(async (quiet = false) => {
     if (!config.bio) return;
     if (await bioVerify(config.bio)) onUnlock();
-    else setMsg("Fingerprint didn't work — use your PIN");
+    else if (!quiet) setMsg(`${bioName()[0].toUpperCase()}${bioName().slice(1)} didn't work — use your PIN`);
   }, [config.bio, onUnlock]);
 
+  // Android can ask for the fingerprint straight away; iPhone/iPad only allow Face ID after a tap
   useEffect(() => {
-    if (config.bio && !triedBio.current) { triedBio.current = true; bio(); }
+    if (config.bio && !triedBio.current && !isApple()) { triedBio.current = true; bio(true); }
   }, [config.bio, bio]);
 
   const press = useCallback(async (k: string) => {
@@ -93,8 +99,12 @@ export default function LockScreen({
         {KEYS.map((k) =>
           k === "bio" ? (
             config.bio ? (
-              <button key={k} className="key key-icon" onClick={() => press("bio")} aria-label="Use fingerprint">
-                <svg viewBox="0 0 24 24"><path d="M7.5 4.5A9 9 0 0121 12M3.5 9A9 9 0 003 12c0 2 .4 3.8 1 5.2M12 7a5 5 0 015 5c0 3-.6 5.5-1.6 7.6M7.4 9.6A5 5 0 007 12c0 2.6-.4 4.6-1.3 6.4M12 11v1.5c0 3.3-.8 6-2 8" /></svg>
+              <button key={k} className="key key-icon" onClick={() => press("bio")} aria-label={`Use ${apple ? "Face ID / Touch ID" : "fingerprint"}`}>
+                {apple ? (
+                  <svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 012-2h2M16 4h2a2 2 0 012 2v2M20 16v2a2 2 0 01-2 2h-2M8 20H6a2 2 0 01-2-2v-2M9 9.5v1M15 9.5v1M12 9.5v4h-1M9.5 16a3.5 3.5 0 005 0" /></svg>
+                ) : (
+                  <svg viewBox="0 0 24 24"><path d="M7.5 4.5A9 9 0 0121 12M3.5 9A9 9 0 003 12c0 2 .4 3.8 1 5.2M12 7a5 5 0 015 5c0 3-.6 5.5-1.6 7.6M7.4 9.6A5 5 0 007 12c0 2.6-.4 4.6-1.3 6.4M12 11v1.5c0 3.3-.8 6-2 8" /></svg>
+                )}
               </button>
             ) : <span key={k} />
           ) : k === "del" ? (
@@ -107,6 +117,9 @@ export default function LockScreen({
         )}
       </div>
 
+      {config.bio && apple && (
+        <button className="chip-btn" onClick={() => press("bio")}>Use Face ID / Touch ID</button>
+      )}
       <button className="link lock-forgot" onClick={onForgot}>Forgot PIN? Log out</button>
     </motion.div>
   );
