@@ -8,7 +8,7 @@ mark items "not now", edit anything, and unfinished items are automatically copi
 npm install
 npm run dev   # http://localhost:3000
 ```
-Forgot-password emails are sent via [Resend](https://resend.com) when `RESEND_API_KEY` (and optionally `MAIL_FROM`) is set; otherwise the reset link is printed in the server console.
+Forgot-password emails are sent through Gmail when `GMAIL_USER` and `GMAIL_APP_PASSWORD` (an [app password](https://myaccount.google.com/apppasswords)) are set, or through [Resend](https://resend.com) with `RESEND_API_KEY`; otherwise the reset link is printed in the server console. `MAIL_FROM` optionally sets the sender name.
 
 Data is stored in `data/db.json` (git-ignored). Set `AUTH_SECRET` in production.
 

@@ -2,26 +2,7 @@ import { NextResponse } from "next/server";
 import { readJson } from "@/lib/http";
 import crypto from "crypto";
 import { load, save, sha } from "@/lib/db";
-
-
-async function sendMail(to: string, link: string) {
-  const key = process.env.RESEND_API_KEY;
-  if (!key) {
-    // No email service configured: print the link so it works in local dev.
-    console.log(`\n[password reset] ${to}\n${link}\n`);
-    return;
-  }
-  await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: process.env.MAIL_FROM || "Looply <onboarding@resend.dev>",
-      to,
-      subject: "Reset your Looply password",
-      html: `<p>Click to reset your password (valid for 1 hour):</p><p><a href="${link}">${link}</a></p>`,
-    }),
-  });
-}
+import { resetEmail, sendMail } from "@/lib/mailer";
 
 export async function POST(req: Request) {
   const { email } = await readJson(req);
@@ -33,7 +14,13 @@ export async function POST(req: Request) {
     user.resetHash = sha(token);
     user.resetExpires = Date.now() + 60 * 60 * 1000;
     await save(data);
-    await sendMail(user.email, `${new URL(req.url).origin}/?reset=${token}`);
+    const origin = process.env.APP_URL || new URL(req.url).origin;
+    try {
+      await sendMail(resetEmail(user.email, `${origin}/?reset=${token}`));
+    } catch (e) {
+      // don't reveal anything to the caller; the error is in the server log
+      console.error("[password reset] email failed:", e);
+    }
   }
   // Same answer either way so emails can't be probed.
   return NextResponse.json({ ok: true });
