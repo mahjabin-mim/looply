@@ -13,6 +13,7 @@ export async function GET() {
     current: monthKey(),
     items: data.items.filter((i) => i.userId === user.id),
     budgets: data.budgets.filter((b) => b.userId === user.id),
+    leftover: user.leftover ?? null,
   });
 }
 

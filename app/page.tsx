@@ -14,12 +14,15 @@ import ItemActions from "@/components/ItemActions";
 import ItemModal from "@/components/ItemModal";
 import PostponeModal from "@/components/PostponeModal";
 import BudgetSheet from "@/components/BudgetSheet";
+import LeftoverSheet from "@/components/LeftoverSheet";
 import Summary from "@/components/Summary";
 import ProfileModal from "@/components/ProfileModal";
 import BottomNav from "@/components/BottomNav";
 import Sheet from "@/components/Sheet";
 import ThemeToggle from "@/components/ThemeToggle";
 import { Toasts, useToasts } from "@/components/Toasts";
+import LockScreen from "@/components/LockScreen";
+import { AWAY_MS, getLock, saveLock, setWaitUntil } from "@/lib/applock";
 
 type User = { name: string; email: string } | null;
 type Section = "todo" | "done" | "skipped";
@@ -41,9 +44,12 @@ export default function Home() {
   const [postponing, setPostponing] = useState<Item | null>(null);
   const [actionsFor, setActionsFor] = useState<Item | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [budgetOpen, setBudgetOpen] = useState(false);
+  const [budgetOpen, setBudgetOpen] = useState<false | "budget" | "savings">(false);
+  const [leftoverOpen, setLeftoverOpen] = useState(false);
+  const [leftoverSet, setLeftoverSet] = useState<{ amount: number; asOf: string } | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [collapsed, setCollapsed] = useState<Section[]>([]);
+  const [locked, setLocked] = useState(false);
   const mobile = useMobile();
   const { toasts, push, dismiss } = useToasts();
   const pendingDeletes = useRef(new Map<string, ReturnType<typeof setTimeout>>());
@@ -54,17 +60,32 @@ export default function Home() {
     const d = await r.json();
     setItems(d.items);
     setBudgets(d.budgets ?? []);
+    setLeftoverSet(d.leftover ?? null);
     setCurrent(d.current);
     setMonth((m) => m || d.current);
   }, []);
 
-  const boot = useCallback(async () => {
+  // lockIt: an existing session opening the app asks for the PIN; a fresh log-in doesn't
+  const boot = useCallback(async (lockIt = true) => {
     const me = await (await fetch("/api/auth/me")).json();
+    if (me && lockIt && getLock(me.email)) setLocked(true);
     setUser(me);
     if (me) refresh();
   }, [refresh]);
 
   useEffect(() => { boot(); }, [boot]);
+
+  // lock again when the app comes back after a minute away
+  useEffect(() => {
+    if (!user) return;
+    let hiddenAt = 0;
+    const onVis = () => {
+      if (document.hidden) hiddenAt = Date.now();
+      else if (hiddenAt && Date.now() - hiddenAt > AWAY_MS && getLock(user.email)) setLocked(true);
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, [user]);
 
   useEffect(() => {
     try { setCollapsed(JSON.parse(localStorage.getItem("collapsed") || "[]")); } catch {}
@@ -131,6 +152,19 @@ export default function Home() {
     push(`Budget saved for ${monthLabel(month)}`);
   };
 
+  const saveLeftover = async (amount: number) => {
+    setLeftoverOpen(false);
+    const r = await fetch("/api/leftover", { method: "PUT", headers: json, body: JSON.stringify({ amount, asOf: month }) });
+    if (r.ok) { setLeftoverSet(await r.json()); push("Left-over amount saved"); }
+  };
+
+  const resetLeftover = async () => {
+    setLeftoverOpen(false);
+    await fetch("/api/leftover", { method: "DELETE" });
+    setLeftoverSet(null);
+    push("Back to Looply's estimate");
+  };
+
   const logout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     setUser(null); setItems([]); setBudgets([]); setMonth(""); setTab("list");
@@ -162,18 +196,24 @@ export default function Home() {
   const sum = (xs: Item[]) => xs.reduce((s, i) => s + (i.price ?? 0), 0);
   const spent = sum(done.filter(isMine));
   const planned = sum(todo.filter(isMine));
-  const others = sum([...done, ...todo].filter((i) => !isMine(i)));
 
-  // Saved in finished months: the saving goal, as far as the leftover cash covered it.
-  let savedSoFar = 0;
-  if (budgets.length && current) {
-    const first = budgets.reduce((a, b) => (a < b.month ? a : b.month), budgets[0].month);
-    for (let m = first; m < current; m = shiftMonth(m, 1)) {
-      const e = effective(m);
-      const sp = items.filter((i) => i.month === m && i.status === "done" && i.mine !== false).reduce((s, i) => s + (i.price ?? 0), 0);
-      savedSoFar += Math.min(e.savings, Math.max(0, e.budget - sp));
-    }
-  }
+  // Money left over from earlier months: budget − spent − saving goal for each month the user tracked.
+  // If the user typed their own figure for some month, count from that figure onwards instead.
+  const leftIn = (m: string) => {
+    const e = effective(m);
+    const tracked = budgets.some((b) => b.month === m) || items.some((i) => i.month === m);
+    if (!e.budget || !tracked) return 0;
+    return e.budget - sum(items.filter((i) => i.month === m && i.status === "done" && isMine(i))) - e.savings;
+  };
+  const leftBetween = (from: string, to: string) => {
+    let t = 0;
+    for (let m = from; m < to; m = shiftMonth(m, 1)) t += leftIn(m);
+    return t;
+  };
+  const firstMonth = [...budgets.map((b) => b.month), ...items.map((i) => i.month)].reduce((a, b) => (a && a < b ? a : b), "");
+  const leftoverEstimate = firstMonth && month ? leftBetween(firstMonth, month) : 0;
+  const leftoverManual = !!leftoverSet && !!month && month >= leftoverSet.asOf;
+  const leftover = leftoverManual ? leftoverSet!.amount + leftBetween(leftoverSet!.asOf, month) : leftoverEstimate;
 
   // One flat list (headers + rows) so a ticked item glides into its new section.
   const entries: Entry[] = [];
@@ -198,10 +238,28 @@ export default function Home() {
       <MotionConfig reducedMotion="user">
         <main className="auth-main">
           <ThemeToggle className="theme-float" />
-          <AuthForm onDone={boot} />
+          <AuthForm onDone={() => boot(false)} />
         </main>
       </MotionConfig>
     );
+  }
+
+  if (locked) {
+    const cfg = getLock(user.email);
+    if (cfg) {
+      return (
+        <MotionConfig reducedMotion="user">
+          <main className="auth-main">
+            <LockScreen
+              name={user.name}
+              config={cfg}
+              onUnlock={() => setLocked(false)}
+              onForgot={async () => { saveLock(user.email, null); setWaitUntil(0); setLocked(false); await logout(); }}
+            />
+          </main>
+        </MotionConfig>
+      );
+    }
   }
 
   const eff = effective(month);
@@ -228,8 +286,11 @@ export default function Home() {
 
               <Overview
                 budget={eff.budget} savings={eff.savings} inherited={eff.inherited}
-                spent={spent} planned={planned} others={others} savedSoFar={savedSoFar}
-                onEditBudget={() => setBudgetOpen(true)}
+                spent={spent} planned={planned}
+                leftover={leftover} leftoverManual={leftoverManual}
+                onEditBudget={() => setBudgetOpen("budget")}
+                onEditSavings={() => setBudgetOpen("savings")}
+                onEditLeftover={() => setLeftoverOpen(true)}
               />
 
               {!mobile && <Composer onAdd={add} />}
@@ -320,7 +381,21 @@ export default function Home() {
         </AnimatePresence>
         <AnimatePresence>
           {budgetOpen && (
-            <BudgetSheet key="budget" month={month} budget={eff.budget} savings={eff.savings} inherited={eff.inherited} onClose={() => setBudgetOpen(false)} onSave={saveBudget} />
+            <BudgetSheet key="budget" month={month} budget={eff.budget} savings={eff.savings} inherited={eff.inherited} focus={budgetOpen} onClose={() => setBudgetOpen(false)} onSave={saveBudget} />
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {leftoverOpen && (
+            <LeftoverSheet
+              key="leftover"
+              month={month}
+              value={leftover}
+              estimate={leftoverEstimate}
+              manual={leftoverManual}
+              onClose={() => setLeftoverOpen(false)}
+              onSave={saveLeftover}
+              onReset={resetLeftover}
+            />
           )}
         </AnimatePresence>
         <AnimatePresence>

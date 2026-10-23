@@ -2,7 +2,11 @@
 import { useEffect, useRef, useState } from "react";
 import { monthLabel, monthOnly, tk, tkShort } from "@/lib/format";
 
-export type MonthPoint = { m: string; spent: number; budget: number; saved: number; goal: number; live: boolean };
+export type MonthPoint = {
+  m: string; spent: number; budget: number; saved: number; goal: number; live: boolean;
+  future?: boolean; // a month that hasn't happened yet: empty slot, no tooltip
+  label?: boolean; // put the value on this column's cap
+};
 
 const niceStep = (raw: number) => {
   const p = Math.pow(10, Math.floor(Math.log10(raw)));
@@ -69,9 +73,9 @@ export default function SpendChart({ data }: { data: MonthPoint[] }) {
             <g key={d.m} className={active === i ? "col on" : "col"}>
               <path className="bar" d={bar(cx, d.spent)} />
               {d.budget > 0 && <line className="budget-tick" x1={cx - barW * 0.85} x2={cx + barW * 0.85} y1={y(d.budget)} y2={y(d.budget)} />}
-              {d.live && d.spent > 0 && <text className="cap" x={cx} y={capY} textAnchor="middle">{tkShort(d.spent)}</text>}
-              <text className={`xlabel ${d.live ? "live" : ""}`} x={cx} y={TOP + PLOT + 18} textAnchor="middle">{monthOnly(d.m)}</text>
-              <rect
+              {d.label && d.spent > 0 && <text className="cap" x={cx} y={capY} textAnchor="middle">{tkShort(d.spent)}</text>}
+              <text className={`xlabel ${d.live ? "live" : ""} ${d.future ? "future" : ""}`} x={cx} y={TOP + PLOT + 18} textAnchor="middle">{monthOnly(d.m)}</text>
+              {!d.future && <rect
                 className="hit"
                 x={LEFT + band * i} y={TOP} width={band} height={PLOT + AXIS}
                 tabIndex={0}
@@ -80,7 +84,7 @@ export default function SpendChart({ data }: { data: MonthPoint[] }) {
                 onPointerLeave={() => setActive(null)}
                 onFocus={() => setActive(i)}
                 onBlur={() => setActive(null)}
-              />
+              />}
             </g>
           );
         })}

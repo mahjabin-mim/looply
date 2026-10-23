@@ -4,12 +4,13 @@ import Sheet from "./Sheet";
 import { monthLabel } from "@/lib/format";
 
 export default function BudgetSheet({
-  month, budget, savings, inherited, onClose, onSave,
+  month, budget, savings, inherited, focus = "budget", onClose, onSave,
 }: {
   month: string;
   budget: number;
   savings: number;
   inherited: boolean;
+  focus?: "budget" | "savings";
   onClose: () => void;
   onSave: (v: { budget: number; savings: number }) => void;
 }) {
@@ -25,14 +26,14 @@ export default function BudgetSheet({
           <label htmlFor="bud">Monthly budget</label>
           <div className="money-input">
             <span>৳</span>
-            <input id="bud" type="number" min="0" step="0.01" inputMode="decimal" placeholder="0" value={b} onChange={(e) => setB(e.target.value)} autoFocus />
+            <input id="bud" type="number" min="0" step="0.01" inputMode="decimal" placeholder="0" value={b} onChange={(e) => setB(e.target.value)} autoFocus={focus === "budget"} />
           </div>
         </div>
         <div className="field">
           <label htmlFor="sav">Saving for the future</label>
           <div className="money-input">
             <span>৳</span>
-            <input id="sav" type="number" min="0" step="0.01" inputMode="decimal" placeholder="0" value={s} onChange={(e) => setS(e.target.value)} />
+            <input id="sav" type="number" min="0" step="0.01" inputMode="decimal" placeholder="0" value={s} onChange={(e) => setS(e.target.value)} autoFocus={focus === "savings"} />
           </div>
           <p className="fine">Looply shows whether what&apos;s left after spending covers this amount.</p>
         </div>

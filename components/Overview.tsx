@@ -23,16 +23,18 @@ const grow = { type: "spring" as const, stiffness: 90, damping: 20 };
 
 /** The money summary for one month: cash left, a budget meter and the saving goal. */
 export default function Overview({
-  budget, savings, inherited, spent, planned, others, savedSoFar, onEditBudget,
+  budget, savings, inherited, spent, planned, leftover, leftoverManual, onEditBudget, onEditSavings, onEditLeftover,
 }: {
   budget: number;
   savings: number;
   inherited: boolean;
   spent: number; // my money, done
   planned: number; // my money, still to do
-  others: number; // not my money
-  savedSoFar: number;
+  leftover: number; // money left over from earlier months, after savings
+  leftoverManual: boolean;
   onEditBudget: () => void;
+  onEditSavings: () => void;
+  onEditLeftover: () => void;
 }) {
   const left = budget - spent;
   const after = left - planned;
@@ -99,21 +101,18 @@ export default function Overview({
       {inherited && budget + savings > 0 && <p className="fine">Using your budget from an earlier month — tap Budget to change it for this month.</p>}
 
       <div className="tiles">
-        <div className="tile">
+        <button className="tile tile-btn" onClick={onEditSavings} aria-label="Edit saving goal">
+          <svg className="tile-edit" viewBox="0 0 24 24" aria-hidden><path d="M4 20h4L19 9a2.8 2.8 0 00-4-4L4 16v4z" /></svg>
           <span className="label">Saving goal</span>
           <b>{savings > 0 ? tk(savings) : "—"}</b>
-          <small>{savings > 0 ? (room >= 0 ? "covered ✓" : `${tk(Math.max(0, after))} on track`) : "not set"}</small>
-        </div>
-        <div className="tile">
-          <span className="label">Not mine</span>
-          <b>{tk(others)}</b>
-          <small>kept separate</small>
-        </div>
-        <div className="tile">
-          <span className="label">Saved so far</span>
-          <b>{tk(savedSoFar)}</b>
-          <small>past months</small>
-        </div>
+          <small>{savings > 0 ? (room >= 0 ? "covered ✓" : `${tk(Math.max(0, after))} on track`) : "tap to set"}</small>
+        </button>
+        <button className="tile tile-btn" onClick={onEditLeftover} aria-label="Edit money left over">
+          <svg className="tile-edit" viewBox="0 0 24 24" aria-hidden><path d="M4 20h4L19 9a2.8 2.8 0 00-4-4L4 16v4z" /></svg>
+          <span className="label">Left over</span>
+          <b>{tk(leftover)}</b>
+          <small>{leftoverManual ? "your amount" : "after savings"}</small>
+        </button>
       </div>
     </motion.section>
   );

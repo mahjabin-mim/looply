@@ -14,6 +14,8 @@ export interface User {
   googleId?: string;
   resetHash?: string;
   resetExpires?: number;
+  // money left over from earlier months, as the user entered it; months from asOf on add to it
+  leftover?: { amount: number; asOf: string } | null;
 }
 
 export interface Item {

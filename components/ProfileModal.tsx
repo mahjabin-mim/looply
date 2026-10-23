@@ -3,6 +3,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Reminders from "./Reminders";
 import Sheet from "./Sheet";
+import AppLockSettings from "./AppLockSettings";
 import { useShowApk } from "@/lib/useShowApk";
 
 type User = { name: string; email: string };
@@ -79,6 +80,10 @@ export default function ProfileModal({
           {note(pwMsg)}
           <div className="actions"><button className="btn">Update password</button></div>
         </form>
+      </section>
+
+      <section className="set-section">
+        <AppLockSettings email={user.email} name={user.name} />
       </section>
 
       <section className="set-section">
