@@ -36,9 +36,12 @@ export default function PostponeModal({
         <button type="button" className={`chip chip-wide ${choice === null ? "on" : ""}`} onClick={() => pick(null)}>
           No month — just park it
         </button>
+        <button type="button" className={`chip chip-wide ${choice === "someday" ? "on" : ""}`} onClick={() => pick("someday")} style={{ marginTop: 8 }}>
+          Move to my wishlist
+        </button>
         <div className="actions">
           <button type="button" className="btn-ghost" onClick={onClose}>Cancel</button>
-          <button className="btn">{choice ? `Move to ${monthLabel(choice, "short")}` : "Park it"}</button>
+          <button className="btn">{choice === "someday" ? "Move to wishlist" : choice ? `Move to ${monthLabel(choice, "short")}` : "Park it"}</button>
         </div>
       </form>
     </Sheet>

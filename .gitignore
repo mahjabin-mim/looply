@@ -6,3 +6,9 @@ next-env.d.ts
 *.tsbuildinfo
 .vercel
 .env*
+
+# tests
+.next-test
+.test-data
+test-results
+playwright-report

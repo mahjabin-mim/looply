@@ -4,6 +4,7 @@ import { AnimatePresence, LayoutGroup, MotionConfig, motion } from "framer-motio
 import type { Item, Budget } from "@/lib/db";
 import { monthLabel, shiftMonth, tk } from "@/lib/format";
 import { useMobile } from "@/lib/useMedia";
+import { effectiveBudget, isMine, leftoverAt, sumPrice as sum } from "@/lib/money";
 import AuthForm from "@/components/AuthForm";
 import Header from "@/components/Header";
 import MonthHeader from "@/components/MonthHeader";
@@ -16,6 +17,8 @@ import PostponeModal from "@/components/PostponeModal";
 import BudgetSheet from "@/components/BudgetSheet";
 import LeftoverSheet from "@/components/LeftoverSheet";
 import Summary from "@/components/Summary";
+import Wishlist from "@/components/Wishlist";
+import MoveSheet from "@/components/MoveSheet";
 import ProfileModal from "@/components/ProfileModal";
 import BottomNav from "@/components/BottomNav";
 import Sheet from "@/components/Sheet";
@@ -39,7 +42,8 @@ export default function Home() {
   const [current, setCurrent] = useState("");
   const [month, setMonth] = useState("");
   const [dir, setDir] = useState(1);
-  const [tab, setTab] = useState<"list" | "summary">("list");
+  const [tab, setTab] = useState<"list" | "wish" | "summary">("list");
+  const [moving, setMoving] = useState<Item | null>(null);
   const [editing, setEditing] = useState<Item | null>(null);
   const [postponing, setPostponing] = useState<Item | null>(null);
   const [actionsFor, setActionsFor] = useState<Item | null>(null);
@@ -114,8 +118,10 @@ export default function Home() {
     if (toDone && left === 0) push(`Everything on your ${monthLabel(item.month).split(" ")[0]} list is done 🎉`);
   };
 
-  const add = async ({ title, price, mine }: NewItem) => {
-    const r = await fetch("/api/items", { method: "POST", headers: json, body: JSON.stringify({ title, price, mine, month }) });
+  // target: a month (YYYY-MM) or "someday" for the wishlist
+  const add = async ({ title, price, mine }: NewItem, target = month) => {
+    const r = await fetch("/api/items", { method: "POST", headers: json, body: JSON.stringify({ title, price, mine, month: target }) });
+    if (!r.ok) { push("Couldn't add that — please try again"); throw new Error("add failed"); }
     const it = await r.json();
     setItems((all) => [...all, it]);
   };
@@ -135,6 +141,21 @@ export default function Home() {
         setItems((all) => (all.some((i) => i.id === item.id) ? all : [...all, item].sort((a, b) => a.createdAt.localeCompare(b.createdAt))));
       },
     }, 5000);
+  };
+
+  const buy = (item: Item) => {
+    patch(item.id, { month: current, status: "done" });
+    push(`“${item.title}” bought — added to ${monthLabel(current).split(" ")[0]} as done`);
+  };
+
+  const moveTo = (item: Item, m: string) => {
+    patch(item.id, { month: m });
+    push(`“${item.title}” moved to ${monthLabel(m)}`);
+  };
+
+  const toWish = (item: Item) => {
+    patch(item.id, { month: "someday", status: "pending" });
+    push(`“${item.title}” moved to your wishlist`);
   };
 
   const skip = (item: Item) => {
@@ -181,39 +202,19 @@ export default function Home() {
   };
 
   // A month without its own budget reuses the latest earlier month's numbers.
-  const effective = (m: string) => {
-    const own = budgets.find((x) => x.month === m);
-    if (own) return { budget: own.budget, savings: own.savings, inherited: false };
-    const prev = budgets.filter((x) => x.month < m).sort((a, b) => (a.month < b.month ? 1 : -1))[0];
-    return { budget: prev?.budget ?? 0, savings: prev?.savings ?? 0, inherited: !!prev };
-  };
+  const effective = (m: string) => effectiveBudget(budgets, m);
 
   const list = useMemo(() => items.filter((i) => i.month === month), [items, month]);
   const todo = list.filter((i) => i.status === "pending");
   const done = list.filter((i) => i.status === "done");
   const skipped = list.filter((i) => i.status === "skipped");
-  const isMine = (i: Item) => i.mine !== false;
-  const sum = (xs: Item[]) => xs.reduce((s, i) => s + (i.price ?? 0), 0);
   const spent = sum(done.filter(isMine));
   const planned = sum(todo.filter(isMine));
 
-  // Money left over from earlier months: budget − spent − saving goal for each month the user tracked.
-  // If the user typed their own figure for some month, count from that figure onwards instead.
-  const leftIn = (m: string) => {
-    const e = effective(m);
-    const tracked = budgets.some((b) => b.month === m) || items.some((i) => i.month === m);
-    if (!e.budget || !tracked) return 0;
-    return e.budget - sum(items.filter((i) => i.month === m && i.status === "done" && isMine(i))) - e.savings;
-  };
-  const leftBetween = (from: string, to: string) => {
-    let t = 0;
-    for (let m = from; m < to; m = shiftMonth(m, 1)) t += leftIn(m);
-    return t;
-  };
-  const firstMonth = [...budgets.map((b) => b.month), ...items.map((i) => i.month)].reduce((a, b) => (a && a < b ? a : b), "");
-  const leftoverEstimate = firstMonth && month ? leftBetween(firstMonth, month) : 0;
-  const leftoverManual = !!leftoverSet && !!month && month >= leftoverSet.asOf;
-  const leftover = leftoverManual ? leftoverSet!.amount + leftBetween(leftoverSet!.asOf, month) : leftoverEstimate;
+  // Money left over from earlier months (after savings); see lib/money.ts
+  const leftoverFor = (m: string) => leftoverAt(items, budgets, leftoverSet, m);
+  const { value: leftover, estimate: leftoverEstimate, manual: leftoverManual } = leftoverFor(month);
+  const wishes = items.filter((i) => i.month === "someday");
 
   // One flat list (headers + rows) so a ticked item glides into its new section.
   const entries: Entry[] = [];
@@ -273,7 +274,22 @@ export default function Home() {
         <AnimatePresence mode="wait" initial={false}>
           {tab === "summary" ? (
             <motion.div key="summary" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
-              <Summary items={items} budgets={budgets} current={current} effective={effective} />
+              <Summary items={items} budgets={budgets} current={current} />
+            </motion.div>
+          ) : tab === "wish" ? (
+            <motion.div key="wish" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
+              <Wishlist
+                items={wishes}
+                mobile={mobile}
+                leftover={leftoverFor(current).value}
+                onAdd={(v) => add(v, "someday")}
+                onBuy={buy}
+                onMove={setMoving}
+                onOpen={(i) => (mobile ? setActionsFor(i) : setEditing(i))}
+                onEdit={setEditing}
+                onDelete={remove}
+                onAddSheet={() => setAddOpen(true)}
+              />
             </motion.div>
           ) : (
             <motion.div key="list" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
@@ -357,12 +373,19 @@ export default function Home() {
           )}
         </AnimatePresence>
 
-        {mobile && <BottomNav tab={tab} onTab={setTab} onAdd={() => { setTab("list"); setAddOpen(true); }} />}
+        {mobile && (
+          <BottomNav
+            tab={tab}
+            onTab={setTab}
+            onAdd={() => { if (tab === "summary") setTab("list"); setAddOpen(true); }}
+            onProfile={() => setProfileOpen(true)}
+          />
+        )}
 
         <AnimatePresence>
           {addOpen && (
-            <Sheet key="add" title={`Add to ${monthName}`} onClose={() => setAddOpen(false)} size="sm">
-              <Composer variant="sheet" onAdd={add} />
+            <Sheet key="add" title={tab === "wish" ? "Add to wishlist" : `Add to ${monthName}`} onClose={() => setAddOpen(false)} size="sm">
+              <Composer variant="sheet" onAdd={(v) => add(v, tab === "wish" ? "someday" : month)} />
             </Sheet>
           )}
         </AnimatePresence>
@@ -371,11 +394,13 @@ export default function Home() {
             <ItemActions
               key="actions"
               item={actionsFor}
+              wish={actionsFor.month === "someday"}
               onClose={() => setActionsFor(null)}
-              onToggle={() => toggle(actionsFor)}
+              onToggle={() => (actionsFor.month === "someday" ? buy(actionsFor) : toggle(actionsFor))}
               onEdit={() => setEditing(actionsFor)}
-              onSkip={() => skip(actionsFor)}
+              onSkip={() => (actionsFor.month === "someday" ? setMoving(actionsFor) : skip(actionsFor))}
               onDelete={() => remove(actionsFor)}
+              onWish={() => toWish(actionsFor)}
             />
           )}
         </AnimatePresence>
@@ -406,11 +431,19 @@ export default function Home() {
               current={current}
               onClose={() => setPostponing(null)}
               onConfirm={(m) => {
-                patch(postponing.id, { status: "skipped", postponeTo: m });
-                push(m ? `“${postponing.title}” moved to ${monthLabel(m)}` : `“${postponing.title}” parked`);
+                if (m === "someday") toWish(postponing);
+                else {
+                  patch(postponing.id, { status: "skipped", postponeTo: m });
+                  push(m ? `“${postponing.title}” moved to ${monthLabel(m)}` : `“${postponing.title}” parked`);
+                }
                 setPostponing(null);
               }}
             />
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {moving && (
+            <MoveSheet key="move" item={moving} current={current} onClose={() => setMoving(null)} onMove={(m) => { moveTo(moving, m); setMoving(null); }} />
           )}
         </AnimatePresence>
         <AnimatePresence>

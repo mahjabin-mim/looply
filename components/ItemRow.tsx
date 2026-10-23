@@ -6,14 +6,15 @@ import { monthLabel, shortDate, tk } from "@/lib/format";
 
 const BURST = Array.from({ length: 8 }, (_, i) => (i / 8) * Math.PI * 2);
 
-function Check({ done, disabled, onClick }: { done: boolean; disabled: boolean; onClick: () => void }) {
+function Check({ done, disabled, onClick, label }: { done: boolean; disabled: boolean; onClick: () => void; label?: string }) {
   const [burst, setBurst] = useState(0);
   return (
     <button
       className={`check ${done ? "on" : ""}`}
       onClick={(e) => { e.stopPropagation(); if (!done) setBurst((b) => b + 1); onClick(); }}
       disabled={disabled}
-      aria-label={done ? "Mark as not done" : "Mark as done"}
+      aria-label={label ?? (done ? "Mark as not done" : "Mark as done")}
+      title={label}
       aria-pressed={done}
     >
       <svg viewBox="0 0 24 24">
@@ -38,10 +39,12 @@ function Check({ done, disabled, onClick }: { done: boolean; disabled: boolean; 
 }
 
 export default function ItemRow({
-  item, mobile, onToggle, onOpen, onSkip, onEdit, onDelete,
+  item, mobile, wish = false, fits = false, onToggle, onOpen, onSkip, onEdit, onDelete,
 }: {
   item: Item;
   mobile: boolean;
+  wish?: boolean; // wishlist row: the tick means "bought it", the clock button moves it into a month
+  fits?: boolean; // wishlist: the price fits in the money left over
   onToggle: () => void;
   onOpen: () => void; // tap on the row: actions sheet on phones, edit on desktop
   onSkip: () => void;
@@ -62,7 +65,7 @@ export default function ItemRow({
         <div className="swipe-bg" aria-hidden>
           <motion.span className="sw-done" style={{ opacity: doneHint }}>
             <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
-            {done ? "Not done" : "Done"}
+            {wish ? "Bought" : done ? "Not done" : "Done"}
           </motion.span>
           <motion.span className="sw-del" style={{ opacity: delHint }}>
             Delete
@@ -85,10 +88,12 @@ export default function ItemRow({
           else if (info.offset.x < -90) onDelete();
         }}
       >
-        <Check done={done} disabled={skipped} onClick={onToggle} />
+        <Check done={done} disabled={skipped} onClick={onToggle} label={wish ? "Bought it" : undefined} />
         <button className="row-body" onClick={() => !dragged.current && onOpen()}>
           <span className="row-title">{item.title}</span>
           <span className="row-meta">
+            {wish && <span>Added {shortDate(item.createdAt)}</span>}
+            {wish && fits && <span className="tag tag-fits">Fits your left-over</span>}
             {!mine && item.price != null && <span className="tag tag-notmine">Not mine</span>}
             {done && item.doneAt && <span>Done {shortDate(item.doneAt)}</span>}
             {skipped && <span className="tag tag-later">{item.postponeTo ? `Back in ${monthLabel(item.postponeTo, "short")}` : "Parked"}</span>}
@@ -102,7 +107,11 @@ export default function ItemRow({
           </button>
         ) : (
           <div className="row-actions">
-            {!done && (
+            {wish ? (
+              <button className="icon-btn" onClick={onSkip} title="Move to a month" aria-label="Move to a month">
+                <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2" /><path d="M8 3v4M16 3v4M4 10h16M12 13v4M10 15h4" /></svg>
+              </button>
+            ) : !done && (
               <button className="icon-btn" onClick={onSkip} title={skipped ? "Put back on the list" : "Not now — move to a later month"} aria-label={skipped ? "Put back" : "Not now"}>
                 {skipped ? (
                   <svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 010 11H11" /></svg>

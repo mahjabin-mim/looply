@@ -41,10 +41,12 @@ export default function ItemModal({
           <span className="toggle-ui" aria-hidden />
           <span>Not my money</span>
         </label>
-        <div className="field">
-          <label htmlFor="ed-when">Date & time done</label>
-          <input id="ed-when" type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} />
-        </div>
+        {item.month !== "someday" && (
+          <div className="field">
+            <label htmlFor="ed-when">Date & time done</label>
+            <input id="ed-when" type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} />
+          </div>
+        )}
         <div className="actions">
           <button type="button" className="btn-ghost" onClick={onClose}>Cancel</button>
           <button className="btn">Save</button>

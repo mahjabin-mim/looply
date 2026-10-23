@@ -22,7 +22,7 @@ export async function GET(req: Request) {
 
   const head = ["Month", "Item", "Price", "Whose money", "Status", "Done at", "Moved to month", "From month"];
   const row = (i: (typeof items)[number]) => [
-    i.month, i.title, i.price, i.mine === false ? "Not mine" : "Mine", i.status, i.doneAt ?? "", i.postponeTo ?? "", i.carriedFrom ?? "",
+    i.month === "someday" ? "Wishlist" : i.month, i.title, i.price, i.mine === false ? "Not mine" : "Mine", i.status, i.doneAt ?? "", i.postponeTo ?? "", i.carriedFrom ?? "",
   ];
   const stamp = new Date().toISOString().slice(0, 10);
 
@@ -40,7 +40,7 @@ export async function GET(req: Request) {
       sheet: "Items",
       data: [
         head.map((h) => ({ value: h, ...bold })),
-        ...items.map((i) => [i.month, i.title, i.price, i.mine === false ? "Not mine" : "Mine", i.status, i.doneAt ?? "", i.postponeTo ?? "", i.carriedFrom ?? ""]),
+        ...items.map((i) => [i.month === "someday" ? "Wishlist" : i.month, i.title, i.price, i.mine === false ? "Not mine" : "Mine", i.status, i.doneAt ?? "", i.postponeTo ?? "", i.carriedFrom ?? ""]),
       ],
     },
     {

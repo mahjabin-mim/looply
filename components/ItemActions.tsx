@@ -5,9 +5,11 @@ import { tk } from "@/lib/format";
 
 /** Phone action sheet for one item. */
 export default function ItemActions({
-  item, onClose, onToggle, onEdit, onSkip, onDelete,
+  item, wish = false, onClose, onToggle, onEdit, onSkip, onDelete, onWish,
 }: {
   item: Item;
+  wish?: boolean; // wishlist item: Bought it / Move to a month
+  onWish?: () => void; // month item: move to the wishlist
   onClose: () => void;
   onToggle: () => void;
   onEdit: () => void;
@@ -22,7 +24,19 @@ export default function ItemActions({
     <Sheet title={item.title} onClose={onClose} size="sm">
       {item.price != null && <p className="fine" style={{ marginTop: 0 }}>{tk(item.price)}{item.mine === false ? " · not my money" : ""}</p>}
       <div className="action-list">
-        {!skipped && (
+        {wish && (
+          <>
+            <button onClick={run(onToggle)}>
+              <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+              Bought it — add to this month as done
+            </button>
+            <button onClick={run(onSkip)}>
+              <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2" /><path d="M8 3v4M16 3v4M4 10h16" /></svg>
+              Move to a month…
+            </button>
+          </>
+        )}
+        {!wish && !skipped && (
           <button onClick={run(onToggle)}>
             <svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
             {done ? "Mark as not done" : "Mark as done"}
@@ -32,7 +46,13 @@ export default function ItemActions({
           <svg viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 00-4-4L4 16v4z" /><path d="M13.5 6.5l4 4" /></svg>
           Edit details
         </button>
-        {!done && (
+        {!wish && !done && onWish && (
+          <button onClick={run(onWish)}>
+            <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z" /></svg>
+            Move to wishlist
+          </button>
+        )}
+        {!wish && !done && (
           <button onClick={run(onSkip)}>
             {skipped ? (
               <svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 010 11H11" /></svg>

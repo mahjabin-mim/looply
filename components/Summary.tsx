@@ -3,40 +3,22 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Item, Budget } from "@/lib/db";
 import { monthLabel, shiftMonth, tk } from "@/lib/format";
-import SpendChart, { type MonthPoint } from "./SpendChart";
+import SpendChart from "./SpendChart";
+import { monthStat, type MonthStat } from "@/lib/money";
 
-type Eff = (m: string) => { budget: number; savings: number };
-type Stat = MonthPoint & { left: number | null };
+type Stat = MonthStat & { future?: boolean; label?: boolean };
 
 export default function Summary({
-  items, budgets, current, effective,
+  items, budgets, current,
 }: {
   items: Item[];
   budgets: Budget[];
   current: string;
-  effective: Eff;
 }) {
   const [view, setView] = useState<"year" | "all">("year");
   const [year, setYear] = useState(Number(current.slice(0, 4)) || new Date().getFullYear());
 
-  const mine = (i: Item) => i.mine !== false;
-  const sum = (xs: Item[]) => xs.reduce((s, i) => s + (i.price ?? 0), 0);
-
-  const stat = (m: string): Stat => {
-    const mi = items.filter((i) => i.month === m);
-    const e = effective(m);
-    const spent = sum(mi.filter((i) => i.status === "done" && mine(i)));
-    const planned = sum(mi.filter((i) => i.status === "pending" && mine(i)));
-    // a month counts only if it was used (items or its own budget); gaps don't inherit savings
-    const tracked = mi.length > 0 || budgets.some((b) => b.month === m) || m === current;
-    if (!tracked) return { m, budget: 0, spent: 0, saved: 0, goal: 0, live: false, left: null };
-    // finished months: what the leftover cash covered; this month: what is on track so far
-    const room = m < current ? e.budget - spent : e.budget - spent - planned;
-    const saved = Math.min(e.savings, Math.max(0, room));
-    // money left after spending and the saving goal — finished months only
-    const left = m < current && e.budget > 0 ? e.budget - spent - e.savings : null;
-    return { m, budget: e.budget, spent, saved, goal: e.savings, live: m === current, left };
-  };
+  const stat = (m: string): Stat => monthStat(items, budgets, current, m);
 
   const starts = [...items.map((i) => i.month), ...budgets.map((b) => b.month)].filter((m) => m <= current);
   const first = starts.length ? starts.reduce((a, b) => (a < b ? a : b)) : current;

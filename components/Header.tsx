@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import ThemeToggle from "./ThemeToggle";
 
 type User = { name: string; email: string };
-type Tab = "list" | "summary";
+type Tab = "list" | "wish" | "summary";
 
 const initials = (name: string) =>
   name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("") || "?";
@@ -44,10 +44,12 @@ export default function Header({
       <Brand />
 
       <nav className="tabs" aria-label="Sections">
-        {(["list", "summary"] as const).map((t) => (
+        {(["list", "wish", "summary"] as const).map((t) => (
           <button key={t} className={tab === t ? "on" : ""} onClick={() => onTab(t)} aria-current={tab === t ? "page" : undefined}>
             {tab === t && <motion.span layoutId="tab-pill" className="pill" transition={{ type: "spring", stiffness: 420, damping: 34 }} />}
-            <span className="lbl">{t === "list" ? "My list" : "Savings & spending"}</span>
+            <span className="lbl">
+              {t === "list" ? "My list" : t === "wish" ? "Wishlist" : <><span className="lbl-long">Savings & spending</span><span className="lbl-short">Savings</span></>}
+            </span>
           </button>
         ))}
       </nav>

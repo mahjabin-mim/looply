@@ -14,7 +14,9 @@ export default function LockScreen({
   onForgot: () => void;
 }) {
   const [pin, setPin] = useState("");
-  const [tries, setTries] = useState(0);
+  // refs, so fast typing never reads a stale PIN between renders
+  const pinRef = useRef("");
+  const triesRef = useRef(0);
   const [msg, setMsg] = useState("");
   const [now, setNow] = useState(Date.now());
   const shake = useAnimationControls();
@@ -40,9 +42,10 @@ export default function LockScreen({
 
   const press = useCallback(async (k: string) => {
     if (busy.current || waitUntil() > Date.now()) return;
-    if (k === "del") return setPin((p) => p.slice(0, -1));
     if (k === "bio") return bio();
-    const next = (pin + k).slice(0, config.len);
+    if (k === "del") { pinRef.current = pinRef.current.slice(0, -1); setPin(pinRef.current); return; }
+    const next = (pinRef.current + k).slice(0, config.len);
+    pinRef.current = next;
     setPin(next);
     setMsg("");
     if (next.length < config.len) return;
@@ -51,15 +54,15 @@ export default function LockScreen({
       setWaitUntil(0);
       onUnlock();
     } else {
-      const t = tries + 1;
-      setTries(t);
+      const t = ++triesRef.current;
       await shake.start({ x: [0, -14, 14, -9, 9, -4, 0], transition: { duration: 0.42 } });
+      pinRef.current = "";
       setPin("");
-      if (t >= MAX_TRIES) { setWaitUntil(Date.now() + 30_000); setTries(0); setNow(Date.now()); setMsg(""); }
+      if (t >= MAX_TRIES) { setWaitUntil(Date.now() + 30_000); triesRef.current = 0; setNow(Date.now()); setMsg(""); }
       else setMsg(`Wrong PIN · ${MAX_TRIES - t} ${MAX_TRIES - t === 1 ? "try" : "tries"} left`);
     }
     busy.current = false;
-  }, [pin, config, tries, bio, onUnlock, shake]);
+  }, [config, bio, onUnlock, shake]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

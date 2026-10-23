@@ -10,7 +10,7 @@ const COOKIE = "session";
 function secret(): Uint8Array {
   if (process.env.AUTH_SECRET) return new TextEncoder().encode(process.env.AUTH_SECRET);
   // dev fallback: generate once and persist
-  const file = path.join(process.cwd(), "data", ".secret");
+  const file = path.join(process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(process.cwd(), "data"), ".secret");
   try {
     return new TextEncoder().encode(fs.readFileSync(file, "utf8"));
   } catch {

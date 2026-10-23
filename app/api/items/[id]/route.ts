@@ -13,6 +13,8 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   if ("price" in b) it.price = b.price === "" || b.price == null ? null : Number(b.price);
   if (typeof b.mine === "boolean") it.mine = b.mine;
   if ("doneAt" in b) it.doneAt = b.doneAt || null;
+  // move between the wishlist and a month
+  if (/^\d{4}-\d{2}$/.test(b.month) || b.month === "someday") { it.month = b.month; it.carried = false; }
   if (["pending", "done", "skipped"].includes(b.status)) {
     it.status = b.status;
     if (b.status === "done" && !it.doneAt && !("doneAt" in b)) it.doneAt = new Date().toISOString();

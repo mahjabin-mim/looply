@@ -42,15 +42,17 @@ export default function MonthHeader({
         <span className="eyebrow">{greeting()}, {first}</span>
         <div className="mh-title">
           <AnimatePresence mode="popLayout" initial={false} custom={dir}>
-            <motion.h2
-              key={month}
-              initial={{ opacity: 0, x: dir * 28 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: dir * -28 }}
-              transition={{ duration: 0.22 }}
-            >
-              {month && monthLabel(month)}
-            </motion.h2>
+            {month && (
+              <motion.h2
+                key={month}
+                initial={{ opacity: 0, x: dir * 28 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: dir * -28 }}
+                transition={{ duration: 0.22 }}
+              >
+                {monthLabel(month)}
+              </motion.h2>
+            )}
           </AnimatePresence>
         </div>
         <span className="mh-sub">

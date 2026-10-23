@@ -25,3 +25,13 @@ The site is an installable PWA. Open the deployed (HTTPS) URL on your phone:
 3. Put the client ID/secret in `.env.local` (see `.env.local.example`) and restart. The "Continue with Google" button appears automatically once configured.
 
 Signing in with Google links to an existing account with the same email, or creates a new one.
+
+## Tests
+```bash
+npm test            # unit tests (Vitest): money maths, voice parsing, formatting, carry-over, app-lock PIN
+npm run test:e2e    # end-to-end tests (Playwright) in your installed Google Chrome, desktop + phone sizes
+npm run test:all    # both
+```
+The end-to-end tests start their own server on port 3100 with a throwaway data folder (`.test-data`) and
+build folder (`.next-test`), so they never touch your real data or a dev server you already have running.
+Speech recognition and the fingerprint sensor are simulated, since a test browser can't hear or touch.

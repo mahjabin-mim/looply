@@ -25,7 +25,7 @@ export interface Item {
   price: number | null;
   mine?: boolean; // false = the money isn't mine (undefined counts as mine)
   doneAt: string | null; // ISO date-time
-  month: string; // YYYY-MM
+  month: string; // YYYY-MM, or "someday" for the wishlist
   status: Status;
   carried: boolean; // already copied forward
   carriedFrom: string | null;
@@ -54,7 +54,8 @@ export interface Data {
   push: PushSub[];
 }
 
-const DIR = path.join(process.cwd(), "data");
+// DATA_DIR lets tests use their own throwaway folder
+const DIR = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.join(process.cwd(), "data");
 const FILE = path.join(DIR, "db.json");
 
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
